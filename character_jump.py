@@ -7,8 +7,18 @@ x = 400
 frame1 = 0
 frame3 = 0
 is_up = True
+running = True
 
-while x < 800:
+
+def handle_events():
+    global running
+    events = pico2d.get_events()
+    for event in events:
+        if event.key == pico2d.SDLK_ESCAPE:
+            running = False
+
+
+while running:
     pico2d.clear_canvas()
     # 그림확인
     character_player.clip_draw(0 * 24, 384 - 71, 24, 23, 400, 290, 120, 115)
@@ -22,8 +32,6 @@ while x < 800:
 
     character_player.clip_draw(3 * 24, 384 - 71, 24, 23, 700, 289, 120, 115)
     character_player.clip_draw(3 * 24, (384 - 20), 24, 20, 700, 290, 120, 100)
-
-
 
     # 몸
     character_player.clip_draw(frame1 * 24, 384 - 71, 24, 23, x, 90 - 2 * frame3, 120, 115)
@@ -41,8 +49,8 @@ while x < 800:
         if frame3 == 0:
             is_up = True
 
-    x += 5
+    handle_events()
     pico2d.delay(0.1)
-    pico2d.get_events()
+    # pico2d.get_events()
 
 pico2d.close_canvas()
