@@ -19,13 +19,16 @@ class Equip_Type(enum.Enum):
 
 
 class Shovel_Type(enum.Enum):
-    SHOVEL_NULL = 1
-    SHOVEL_BASIC = 2
+    SHOVEL_NULL = -1
+    SHOVEL_BASIC = 0
+    SHOVEL_TITANIUM = 1
+    SHOVEL_GLASS = 2
+    SHOVEL_OBSIDIAN = 3
 
 
 class Attack_Type(enum.Enum):
-    ATTACK_NULL = 1
-    ATTACK_BASIC = 2
+    ATTACK_NULL = -1
+    ATTACK_BASIC = 0
 
 
 # Frame 구조체
@@ -127,6 +130,10 @@ class UI_Player_Money:
 class UI_Player_Equip:
     def __init__(self, shovel_value, attack_value, body_value=None, head_value=None):
         self.frame_image = pico2d.load_image('resource\\UI.png')
+        self.shovel_image = pico2d.load_image('resource\\Item_Shovel.png')
+        self.weapon_image = pico2d.load_image('resource\\Item_Weapon.png')
+        self.body_image = None
+        self.head_image = None
 
         self.image_multiple_size = 2
         self.pivot = Point(50, CANVAS_HEIGHT - 33 - 3)  # 33 = frame_origin_size.height
@@ -162,14 +169,29 @@ class UI_Player_Equip:
                                    frame_origin_size.width * self.image_multiple_size, frame_origin_size.height * self.image_multiple_size)
 
         # 삽 아이템
+        if self.shovel_type != Shovel_Type.SHOVEL_NULL:
+            item_pivot = Point(50, CANVAS_HEIGHT - 40)
+            shovel_origin_size = Image_Origin_Size(24, 25)
+            shovel_origin_interval = 5
+            shovel_start_point = Point(shovel_origin_size.width * self.shovel_type.value + shovel_origin_interval * self.shovel_type.value,
+                                       self.shovel_image.h - 2 - shovel_origin_size.height)
 
+            self.shovel_image.clip_draw(shovel_start_point.x , shovel_start_point.y,
+                                        shovel_origin_size.width, shovel_origin_size.height,
+                                        item_pivot.x, item_pivot.y,
+                                        shovel_origin_size.width * self.image_multiple_size, shovel_origin_size.height * self.image_multiple_size)
+            pass
+
+        if self.attack_type != Attack_Type.ATTACK_NULL:
+            item_pivot = Point(50 + 70, CANVAS_HEIGHT - 40)
+            pass
         pass
 
 
 player_hp = UI_Player_Hp()
 player_gold = UI_Player_Money(Money_Type.GOLD, 212)
 player_dia = UI_Player_Money(Money_Type.DIAMOND, 3)
-player_equip = UI_Player_Equip(Shovel_Type.SHOVEL_NULL, Attack_Type.ATTACK_BASIC)
+player_equip = UI_Player_Equip(Shovel_Type.SHOVEL_TITANIUM, Attack_Type.ATTACK_BASIC)
 
 x = 400
 frame1 = 0
