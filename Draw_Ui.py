@@ -64,8 +64,46 @@ class UI_Player_Hp:
                                          heart_origin_size.width * self.image_multiple_size, heart_origin_size.height * self.image_multiple_size)
 
 
+class UI_Player_Money:
+    def __init__(self, money_type, val):
+        self.image = pico2d.load_image('resource\\UI.png')
+        self.font = pico2d.load_font('resource\\2dgp-money-cnt.ttf', 15)
+        self.image_multiple_size = 2
+        self.money_type = money_type
+        if self.money_type == 'gold':
+            self.pivot = Point(CANVAS_WIDTH - 90, CANVAS_HEIGHT - 35)
+        elif self.money_type == 'diamond':
+            self.pivot = Point(CANVAS_WIDTH - 90, CANVAS_HEIGHT - 85)
+        self.value = val
+
+    def update(self):
+        pass
+
+    def draw(self):
+        money_origin_size = 0
+        image_start_point = Point(0, 0)
+
+        if self.money_type == 'gold':
+            money_origin_size = Image_Origin_Size(20, 20)
+            image_start_point = Point(87, self.image.h - 27 - money_origin_size.height)
+
+        elif self.money_type == 'diamond':
+            money_origin_size = Image_Origin_Size(25, 20)
+            image_start_point = Point(87, self.image.h - money_origin_size.height)
+
+        self.image.clip_draw(image_start_point.x, image_start_point.y,
+                             money_origin_size.width, money_origin_size.height,
+                             self.pivot.x, self.pivot.y,
+                             money_origin_size.width * self.image_multiple_size, money_origin_size.height * self.image_multiple_size)
+
+        money_str = 'x' + str(self.value)
+        self.font.draw(self.pivot.x + 28+2, self.pivot.y-3, money_str, (0, 0, 0)) # 그림자
+        self.font.draw(self.pivot.x + 28, self.pivot.y, money_str, (255, 255, 255)) # 숫자
+
 
 player_hp = UI_Player_Hp()
+player_gold = UI_Player_Money('gold', 212)
+player_dia = UI_Player_Money('diamond', 3)
 
 x = 400
 frame1 = 0
@@ -91,7 +129,11 @@ while running:
     handle_events()
 
     player_hp.draw()
+    player_gold.draw()
+    player_dia.draw()
     player_hp.update()
+    player_gold.update()
+    player_dia.update()
 
     pico2d.update_canvas()
 
