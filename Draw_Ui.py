@@ -5,7 +5,6 @@ import enum
 CANVAS_WIDTH, CANVAS_HEIGHT = 1280, 720
 
 pico2d.open_canvas(CANVAS_WIDTH, CANVAS_HEIGHT, False, False)
-character_player = pico2d.load_image('resource\\Character_Player.png')
 
 
 class Money_Type(enum.Enum):
