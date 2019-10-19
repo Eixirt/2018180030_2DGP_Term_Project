@@ -15,7 +15,7 @@ class Money_Type(enum.Enum):
 
 class Equip_Type(enum.Enum):
     SHOVEL = 1
-    ATTACK = 2
+    WEAPON = 2
 
 
 class Shovel_Type(enum.Enum):
@@ -26,9 +26,9 @@ class Shovel_Type(enum.Enum):
     SHOVEL_OBSIDIAN = 3
 
 
-class Attack_Type(enum.Enum):
-    ATTACK_NULL = -1
-    ATTACK_BASIC = 0
+class Weapon_Type(enum.Enum):
+    WEAPON_NULL = -1
+    WEAPON_DAGGER_BASIC = 0
 
 
 # Frame 구조체
@@ -128,7 +128,7 @@ class UI_Player_Money:
 
 
 class UI_Player_Equip:
-    def __init__(self, shovel_value, attack_value, body_value=None, head_value=None):
+    def __init__(self, shovel_value, weapon_value, body_value=None, head_value=None):
         self.frame_image = pico2d.load_image('resource\\UI.png')
         self.shovel_image = pico2d.load_image('resource\\Item_Shovel.png')
         self.weapon_image = pico2d.load_image('resource\\Item_Weapon.png')
@@ -138,7 +138,7 @@ class UI_Player_Equip:
         self.image_multiple_size = 2
         self.pivot = Point(50, CANVAS_HEIGHT - 33 - 3)  # 33 = frame_origin_size.height
         self.shovel_type = shovel_value
-        self.attack_type = attack_value
+        self.weapon_type = weapon_value
         self.body_type = None
         self.head_type = None
 
@@ -182,8 +182,16 @@ class UI_Player_Equip:
                                         shovel_origin_size.width * self.image_multiple_size, shovel_origin_size.height * self.image_multiple_size)
             pass
 
-        if self.attack_type != Attack_Type.ATTACK_NULL:
+        if self.weapon_type != Weapon_Type.WEAPON_NULL:
             item_pivot = Point(50 + 70, CANVAS_HEIGHT - 40)
+            weapon_origin_size = Image_Origin_Size(13, 13)
+            weapon_origin_interval = 5
+            weapon_start_point = Point(weapon_origin_size.width * self.weapon_type.value + weapon_origin_interval * self.weapon_type.value,
+                                       self.weapon_image.h - 4 - weapon_origin_size.height)
+            self.weapon_image.clip_draw(weapon_start_point.x, weapon_start_point.y,
+                                        weapon_origin_size.width, weapon_origin_size.height,
+                                        item_pivot.x, item_pivot.y,
+                                        weapon_origin_size.width * self.image_multiple_size, weapon_origin_size.height * self.image_multiple_size)
             pass
         pass
 
@@ -191,7 +199,7 @@ class UI_Player_Equip:
 player_hp = UI_Player_Hp()
 player_gold = UI_Player_Money(Money_Type.GOLD, 212)
 player_dia = UI_Player_Money(Money_Type.DIAMOND, 3)
-player_equip = UI_Player_Equip(Shovel_Type.SHOVEL_TITANIUM, Attack_Type.ATTACK_BASIC)
+player_equip = UI_Player_Equip(Shovel_Type.SHOVEL_TITANIUM, Weapon_Type.WEAPON_DAGGER_BASIC)
 
 x = 400
 frame1 = 0
