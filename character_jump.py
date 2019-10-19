@@ -114,6 +114,8 @@ running = True
 
 def handle_events():
     global running
+    global player
+    global dagger
     events = pico2d.get_events()
     for event in events:
         if event.type == pico2d.SDL_QUIT:
