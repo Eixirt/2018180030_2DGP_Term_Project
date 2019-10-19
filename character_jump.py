@@ -2,7 +2,10 @@ import pico2d
 import ctypes
 import math
 
-pico2d.open_canvas()
+CANVAS_WIDTH, CANVAS_HEIGHT = 1280, 720
+
+# 수직동기화 sync = False
+pico2d.open_canvas(CANVAS_WIDTH, CANVAS_HEIGHT, False, False)
 character_player = pico2d.load_image('resource\\Character_Player.png')
 
 
@@ -12,12 +15,17 @@ class Point(ctypes.Structure):
                 ("y", ctypes.c_int)]
 
 
+class Image_Origin_Size(ctypes.Structure):
+    _fields_ = [("width", ctypes.c_int),
+                ("height", ctypes.c_int)]
+
+
 class Dagger_Attack:
     def __init__(self):
         self.image = pico2d.load_image('resource\\Effect_Weapon.png')
         self.pivot = Point(700, 100)
         self.frame = 0
-        self.image_multiple_size = 3
+        self.image_multiple_size = 2
         self.rad = 0
         self.flip = ''
 
@@ -39,14 +47,12 @@ class Dagger_Attack:
         self.frame = (self.frame + 1) % 3
 
     def draw(self):
-        effect_size = Point(21, 16)
-        self.image.clip_composite_draw(299 + self.frame * effect_size.x, 1398 - 19 - effect_size.y,
-                                       effect_size.x, effect_size.y,
+        effect_origin_size = Image_Origin_Size(21, 16)
+        self.image.clip_composite_draw(299 + self.frame * effect_origin_size.width, self.image.h - 19 - effect_origin_size.height,
+                                       effect_origin_size.width, effect_origin_size.height,
                                        self.rad, self.flip,
-                                       self.pivot.x - 100,
-                                       self.pivot.y + effect_size.y * 0.5 * self.image_multiple_size,
-                                       effect_size.x * self.image_multiple_size,
-                                       effect_size.y * self.image_multiple_size)
+                                       self.pivot.x - 100, self.pivot.y + effect_origin_size.height * 0.5 * self.image_multiple_size,
+                                       effect_origin_size.width * self.image_multiple_size, effect_origin_size.height * self.image_multiple_size)
 
 
 class Player:
@@ -54,7 +60,7 @@ class Player:
         self.image = pico2d.load_image('resource\\Character_Player.png')
         self.pivot = Point(500, 100)
         self.frame = Point(0, 0)
-        self.image_multiple_size = 3
+        self.image_multiple_size = 2
         self.rad = 0
         self.flip = ''
 
@@ -79,21 +85,22 @@ class Player:
 
     def draw(self):
         # 몸
-        body_size = Point(24, 14)
-        self.image.clip_composite_draw(self.frame.x * body_size.x, 384 - 57 - body_size.y,
-                                       body_size.x, body_size.y,
+        body_origin_size = Image_Origin_Size(24, 14)
+        self.image.clip_composite_draw(self.frame.x * body_origin_size.width, self.image.h - 58 - body_origin_size.height,
+                                       body_origin_size.width, body_origin_size.height,
                                        self.rad, self.flip,
-                                       self.pivot.x, self.pivot.y + 0.5 * body_size.y * self.image_multiple_size,
-                                       body_size.x * self.image_multiple_size, body_size.y * self.image_multiple_size)
+                                       self.pivot.x, self.pivot.y + 0.5 * body_origin_size.height * self.image_multiple_size,
+                                       body_origin_size.width * self.image_multiple_size, body_origin_size.height * self.image_multiple_size)
         # 머리
-        head_size = Point(24, 12)
-        head_interval = body_size.y * self.image_multiple_size - 3 * self.image_multiple_size  # 머리와 몸 간의 간격 차이
-        self.image.clip_composite_draw(self.frame.x * head_size.x, 384 - head_size.y - 24 * self.frame.y,
-                                       head_size.x, head_size.y,
+        head_origin_size = Image_Origin_Size(24, 12)
+
+        # 머리와 몸 간의 간격 차이
+        head_interval = body_origin_size.height * self.image_multiple_size - 3 * self.image_multiple_size
+        self.image.clip_composite_draw(self.frame.x * head_origin_size.width, self.image.h - head_origin_size.height - 24 * self.frame.y,
+                                       head_origin_size.width, head_origin_size.height,
                                        self.rad, self.flip,
-                                       self.pivot.x,
-                                       self.pivot.y + 0.5 * head_size.y * self.image_multiple_size + head_interval,
-                                       head_size.x * self.image_multiple_size, head_size.y * self.image_multiple_size)
+                                       self.pivot.x, self.pivot.y + 0.5 * head_origin_size.height * self.image_multiple_size + head_interval,
+                                       head_origin_size.width * self.image_multiple_size, head_origin_size.height * self.image_multiple_size)
 
 
 player = Player()
