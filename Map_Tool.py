@@ -4,6 +4,7 @@ import ctypes
 CANVAS_WIDTH, CANVAS_HEIGHT = 1280, 720
 
 pico2d.open_canvas(CANVAS_WIDTH, CANVAS_HEIGHT, False, False)
+map_data_file = open("map_data.txt", 'w')
 
 
 # Frame 구조체
@@ -90,13 +91,17 @@ canvas_camera = Camera()
 block = [Block()]
 is_up = True
 running = True
+check_simultaneous_key_buffer_dic = {'ctrl': False, 'key_s': False}
 
 
 def handle_events():
     global running
     global canvas_camera
     global block
+    global check_simultaneous_key_buffer_dic
     events = pico2d.get_events()
+
+    # simultaneous = 동시에 일어나는
 
     for event in events:
         if event.type == pico2d.SDL_QUIT:
@@ -112,9 +117,22 @@ def handle_events():
 
             elif event.key == pico2d.SDLK_s:
                 canvas_camera.move('s')
+                check_simultaneous_key_buffer_dic['key_s'] = True
 
             elif event.key == pico2d.SDLK_d:
                 canvas_camera.move('d')
+
+            elif event.key == pico2d.SDLK_LCTRL:
+                check_simultaneous_key_buffer_dic['ctrl'] = True
+                continue
+
+        elif event.type == pico2d.SDL_KEYUP:
+            if event.key == pico2d.SDLK_s:
+                check_simultaneous_key_buffer_dic['key_s'] = False
+                continue
+            elif event.key == pico2d.SDLK_LCTRL:
+                check_simultaneous_key_buffer_dic['ctrl'] = False
+                continue
 
         elif event.type == pico2d.SDL_MOUSEBUTTONDOWN:
             mouse_x, mouse_y = event.x, CANVAS_HEIGHT - 1 - event.y
@@ -146,12 +164,19 @@ while running:
         val = canvas_camera.trans_point_object_to_camera(i.get_pivot().x, i.get_pivot().y)
         i.set_pivot(val)
 
+    cnt = 0
     for i in block:
         i.draw()
+        if check_simultaneous_key_buffer_dic['ctrl'] is True and check_simultaneous_key_buffer_dic['key_s'] is True:
+            cnt += 1
+            map_data_file.write(str(cnt) + "번 째 블럭 : " + "< " + str(i.pivot.x) + ", " + str(i.pivot.y) + " > \n")
+            pass
 
     pico2d.update_canvas()
 
     pico2d.delay(0.1)
     # pico2d.get_events()
 
+map_data_file.close()
 pico2d.close_canvas()
+
