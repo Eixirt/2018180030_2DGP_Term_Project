@@ -150,7 +150,15 @@ def handle_events():
                 mouse_y = click_area.top
 
             mouse_point = Point(mouse_x + canvas_camera.camera_rect.left, mouse_y + canvas_camera.camera_rect.bottom)
-            block.append(Block(mouse_point.x, mouse_point.y))
+            # duplication = 중복
+            check_duplication = False
+            for duplication in block:
+                if duplication.pivot.x == mouse_point.x and duplication.pivot.y == mouse_point.y:
+                    check_duplication = True
+                    break
+
+            if check_duplication is False:
+                block.append(Block(mouse_point.x, mouse_point.y))
             pass
     pass
 
@@ -179,4 +187,3 @@ while running:
 
 map_data_file.close()
 pico2d.close_canvas()
-
