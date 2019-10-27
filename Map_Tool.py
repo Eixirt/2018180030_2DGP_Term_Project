@@ -27,12 +27,23 @@ class Rectangle(ctypes.Structure):
 
 class Block_Type(enum.Enum):
     BLOCK_NULL = -1
-    BLOCK_BASIC_STRONG_COLOR = 0
-    BLOCK_BASIC_WEAK_COLOR = 1
-    BLOCK_CYAN_COLOR = 2
-    BLOCK_PINK_COLOR = 3
-    BLOCK_STAIR_CLOSED = 4
-    BLOCK_STAIR_OPENED = 5
+    BLOCK_BASIC_STRONG_COLOR_1 = 0
+    BLOCK_BASIC_WEAK_COLOR_1 = 1
+    BLOCK_BASIC_STRONG_COLOR_2 = 2
+    BLOCK_BASIC_WEAK_COLOR_2 = 3
+    BLOCK_CYAN_COLOR = 4
+    BLOCK_PINK_COLOR = 5
+    BLOCK_STAIR_CLOSED = 6
+    BLOCK_STAIR_OPENED = 7
+
+
+class Wall_Type(enum.Enum):
+    WALL_NULL = -1
+    WALL_BASIC_1 = 0
+    WALL_BASIC_2 = 1
+    WALL_VINE = 2
+    WALL_STONE = 3
+    WALL_STONE_DAMAGED = 4
 
 
 class Block:
@@ -47,7 +58,7 @@ class Block:
 
         self.image_multiple_size = 2
         if selected_block is None:
-            self.value = Block_Type.BLOCK_BASIC_STRONG_COLOR
+            self.value = Block_Type.BLOCK_BASIC_STRONG_COLOR_1
         else:
             self.value = selected_block
 
@@ -64,9 +75,9 @@ class Block:
     def draw(self):
         block_origin_size = Image_Origin_Size(26, 26)
         image_start_point = Point(0, self.image.h - 26)
-        if self.value == Block_Type.BLOCK_BASIC_STRONG_COLOR:
+        if self.value == Block_Type.BLOCK_BASIC_STRONG_COLOR_1:
             image_start_point = Point(0, self.image.h - 26)
-        elif self.value == Block_Type.BLOCK_BASIC_WEAK_COLOR:
+        elif self.value == Block_Type.BLOCK_BASIC_WEAK_COLOR_1:
             image_start_point = Point(26 * 2, self.image.h - 26)
 
         self.image.clip_draw(image_start_point.x, image_start_point.y,
@@ -77,7 +88,44 @@ class Block:
 
 
 class Wall:
-    pass
+    def __init__(self, selected_wall=None, px=None, py=None):
+        self.image = pico2d.load_image('resource\\Block_Walls.png')
+        if px is None and py is None:
+            self.pivot = Point(400, 500)
+            self.camera_pivot = Point(400, 500)
+        else:
+            self.pivot = Point(px, py)
+            self.camera_pivot = Point(px, py)
+
+        self.image_multiple_size = 2
+        if selected_wall is None:
+            self.value = Wall_Type.WALL_BASIC_1
+        else:
+            self.value = selected_wall
+
+    def update(self):
+        pass
+
+    def get_pivot(self):
+        return self.pivot
+
+    def set_pivot(self, pivot_data):
+        self.camera_pivot = pivot_data
+        pass
+
+    def draw(self):
+        wall_origin_size = Image_Origin_Size(24, 40)
+        image_start_point = Point(0, self.image.h - 40)
+        if self.value == Wall_Type.WALL_BASIC_1:
+            image_start_point = Point(0, self.image.h - 40)
+        elif self.value == Wall_Type.WALL_BASIC_2:
+            image_start_point = Point(24 * 1, self.image.h - 40)
+
+        self.image.clip_draw(image_start_point.x, image_start_point.y,
+                             wall_origin_size.width, wall_origin_size.height,
+                             self.camera_pivot.x, self.camera_pivot.y,
+                             (wall_origin_size.width + 1) * self.image_multiple_size, (wall_origin_size.height - 1) * self.image_multiple_size)
+        pass
 
 
 class Camera:
@@ -111,18 +159,24 @@ class Camera:
 
 
 canvas_camera = Camera()
-block = [Block()]
+block_list = [Block()]
+wall_list = [Wall()]
 running = True
 check_simultaneous_key_buffer_dic = {'ctrl': False, 'key_s': False}
-select_block_value = Block_Type.BLOCK_BASIC_STRONG_COLOR
+select_block_value = Block_Type.BLOCK_BASIC_STRONG_COLOR_1
+select_wall_value = Wall_Type.WALL_BASIC_1
+curr_selected_object = 'Block'
 
 
 def handle_events():
     global running
     global canvas_camera
-    global block
+    global block_list
+    global wall_list
     global check_simultaneous_key_buffer_dic
     global select_block_value
+    global select_wall_value
+    global curr_selected_object
     events = pico2d.get_events()
 
     # simultaneous = 동시에 일어나는
@@ -151,9 +205,17 @@ def handle_events():
                 continue
 
             elif event.key == pico2d.SDLK_1:
-                select_block_value = Block_Type.BLOCK_BASIC_STRONG_COLOR
+                select_block_value = Block_Type.BLOCK_BASIC_STRONG_COLOR_1
+                curr_selected_object = 'Block'
             elif event.key == pico2d.SDLK_2:
-                select_block_value = Block_Type.BLOCK_BASIC_WEAK_COLOR
+                select_block_value = Block_Type.BLOCK_BASIC_WEAK_COLOR_1
+                curr_selected_object = 'Block'
+            elif event.key == pico2d.SDLK_3:
+                select_wall_value = Wall_Type.WALL_BASIC_1
+                curr_selected_object = 'Wall'
+            elif event.key == pico2d.SDLK_4:
+                select_wall_value = Wall_Type.WALL_BASIC_2
+                curr_selected_object = 'Wall'
 
         elif event.type == pico2d.SDL_KEYUP:
             if event.key == pico2d.SDLK_s:
@@ -181,13 +243,20 @@ def handle_events():
             mouse_point = Point(mouse_x + canvas_camera.camera_rect.left, mouse_y + canvas_camera.camera_rect.bottom)
             # duplication = 중복
             check_duplication = False
-            for duplication in block:
+            for duplication in block_list:
+                if duplication.pivot.x == mouse_point.x and duplication.pivot.y == mouse_point.y:
+                    check_duplication = True
+                    break
+            for duplication in wall_list:
                 if duplication.pivot.x == mouse_point.x and duplication.pivot.y == mouse_point.y:
                     check_duplication = True
                     break
 
             if check_duplication is False:
-                block.append(Block(select_block_value, mouse_point.x, mouse_point.y))
+                if curr_selected_object == 'Block':
+                    block_list.append(Block(select_block_value, mouse_point.x, mouse_point.y))
+                elif curr_selected_object == 'Wall':
+                    wall_list.append(Wall(select_wall_value, mouse_point.x, mouse_point.y))
             pass
     pass
 
@@ -197,13 +266,17 @@ while running:
     handle_events()
 
     canvas_camera.update()
-    for i in block:
+    for i in block_list:
+        val = canvas_camera.trans_point_object_to_camera(i.get_pivot().x, i.get_pivot().y)
+        i.set_pivot(val)
+
+    for i in wall_list:
         val = canvas_camera.trans_point_object_to_camera(i.get_pivot().x, i.get_pivot().y)
         i.set_pivot(val)
 
     black_background.draw(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2)
     cnt = 0
-    for i in block:
+    for i in block_list:
         i.draw()
         if check_simultaneous_key_buffer_dic['ctrl'] is True and check_simultaneous_key_buffer_dic['key_s'] is True:
             if cnt == 0:
@@ -212,6 +285,15 @@ while running:
             cnt += 1
             map_data_file.write(str(cnt) + "번 째 블럭 : " + "< " + str(i.pivot.x) + ", " + str(i.pivot.y) + " > \n")
             pass
+    cnt = 0
+    for i in wall_list:
+        i.draw()
+        if check_simultaneous_key_buffer_dic['ctrl'] is True and check_simultaneous_key_buffer_dic['key_s'] is True:
+            if cnt == 0:
+                map_data_file.write(" -----------------------------------------\n ")
+                cnt += 1
+                map_data_file.write(str(cnt) + "번 째 벽 : " + "< " + str(i.pivot.x) + ", " + str(i.pivot.y) + " > \n")
+        pass
 
     pico2d.draw_rectangle(CANVAS_WIDTH - 350, CANVAS_HEIGHT - 100, CANVAS_WIDTH, CANVAS_HEIGHT)
     pico2d.update_canvas()
