@@ -165,7 +165,7 @@ running = True
 check_simultaneous_key_buffer_dic = {'ctrl': False, 'key_s': False}
 select_block_value = Block_Type.BLOCK_BASIC_STRONG_COLOR_1
 select_wall_value = Wall_Type.WALL_BASIC_1
-curr_selected_object = 'Block'
+curr_selected_object = 'Block' # Block / Wall / Delete_Object
 
 
 def handle_events():
@@ -187,6 +187,7 @@ def handle_events():
         elif event.type == pico2d.SDL_KEYDOWN:
             if event.key == pico2d.SDLK_ESCAPE:
                 running = False
+                #카메라 움직임
             elif event.key == pico2d.SDLK_w:
                 canvas_camera.move('w')
 
@@ -204,6 +205,7 @@ def handle_events():
                 check_simultaneous_key_buffer_dic['ctrl'] = True
                 continue
 
+            # 블럭 선택
             elif event.key == pico2d.SDLK_1:
                 select_block_value = Block_Type.BLOCK_BASIC_STRONG_COLOR_1
                 curr_selected_object = 'Block'
@@ -216,6 +218,9 @@ def handle_events():
             elif event.key == pico2d.SDLK_4:
                 select_wall_value = Wall_Type.WALL_BASIC_2
                 curr_selected_object = 'Wall'
+            elif event.key == pico2d.SDLK_DELETE:
+                curr_selected_object = 'Delete_Object'
+                pass
 
         elif event.type == pico2d.SDL_KEYUP:
             if event.key == pico2d.SDLK_s:
@@ -224,7 +229,8 @@ def handle_events():
             elif event.key == pico2d.SDLK_LCTRL:
                 check_simultaneous_key_buffer_dic['ctrl'] = False
                 continue
-
+        
+        # 마우스로 블럭 생성하기 위한 마우스 위치 조정
         elif event.type == pico2d.SDL_MOUSEBUTTONDOWN:
             mouse_x, mouse_y = event.x, CANVAS_HEIGHT - 1 - event.y
 
@@ -241,17 +247,21 @@ def handle_events():
                 mouse_y = click_area.top
 
             mouse_point = Point(mouse_x + canvas_camera.camera_rect.left, mouse_y + canvas_camera.camera_rect.bottom)
-            # duplication = 중복
+            # duplication = 중복 / 중복 체크
             check_duplication = False
             for duplication in block_list:
                 if duplication.pivot.x == mouse_point.x and duplication.pivot.y == mouse_point.y:
                     check_duplication = True
+                    if curr_selected_object == 'Delete_Object':
+                        del block_list[block_list.index(duplication)]
                     break
             for duplication in wall_list:
                 if duplication.pivot.x == mouse_point.x and duplication.pivot.y == mouse_point.y:
                     check_duplication = True
+                    if curr_selected_object == 'Delete_Object':
+                        del wall_list[wall_list.index(duplication)]
                     break
-
+            # 중복되지 않았다면 블럭 생성
             if check_duplication is False:
                 if curr_selected_object == 'Block':
                     block_list.append(Block(select_block_value, mouse_point.x, mouse_point.y))
@@ -291,8 +301,9 @@ while running:
         if check_simultaneous_key_buffer_dic['ctrl'] is True and check_simultaneous_key_buffer_dic['key_s'] is True:
             if cnt == 0:
                 map_data_file.write(" -----------------------------------------\n ")
-                cnt += 1
-                map_data_file.write(str(cnt) + "번 째 벽 : " + "< " + str(i.pivot.x) + ", " + str(i.pivot.y) + " > \n")
+
+            cnt += 1
+            map_data_file.write(str(cnt) + "번 째 벽 : " + "< " + str(i.pivot.x) + ", " + str(i.pivot.y) + " > \n")
         pass
 
     pico2d.draw_rectangle(CANVAS_WIDTH - 350, CANVAS_HEIGHT - 100, CANVAS_WIDTH, CANVAS_HEIGHT)
