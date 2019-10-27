@@ -1,10 +1,12 @@
 import pico2d
 import ctypes
+import enum
 
 CANVAS_WIDTH, CANVAS_HEIGHT = 1280, 720
 
 pico2d.open_canvas(CANVAS_WIDTH, CANVAS_HEIGHT, False, False)
 map_data_file = open("map_data.txt", 'w')
+black_background = pico2d.load_image('resource\\black_background.jpg')
 
 
 # Frame 구조체
@@ -23,8 +25,18 @@ class Rectangle(ctypes.Structure):
                 ("right", ctypes.c_int), ("top", ctypes.c_int)]
 
 
+class Block_Type(enum.Enum):
+    BLOCK_NULL = -1
+    BLOCK_BASIC_STRONG_COLOR = 0
+    BLOCK_BASIC_WEAK_COLOR = 1
+    BLOCK_CYAN_COLOR = 2
+    BLOCK_PINK_COLOR = 3
+    BLOCK_STAIR_CLOSED = 4
+    BLOCK_STAIR_OPENED = 5
+
+
 class Block:
-    def __init__(self, px=None, py=None):
+    def __init__(self, selected_block=None, px=None, py=None):
         self.image = pico2d.load_image('resource\\Block_Floors.png')
         if px is None and py is None:
             self.pivot = Point(500, 500)
@@ -34,7 +46,10 @@ class Block:
             self.camera_pivot = Point(px, py)
 
         self.image_multiple_size = 2
-        self.value = 1
+        if selected_block is None:
+            self.value = Block_Type.BLOCK_BASIC_STRONG_COLOR
+        else:
+            self.value = selected_block
 
     def update(self):
         pass
@@ -42,19 +57,27 @@ class Block:
     def get_pivot(self):
         return self.pivot
 
-    def set_pivot(self, val):
-        self.camera_pivot = val
+    def set_pivot(self, pivot_data):
+        self.camera_pivot = pivot_data
         pass
 
     def draw(self):
         block_origin_size = Image_Origin_Size(26, 26)
-        image_start_point = Point(0, 0)
+        image_start_point = Point(0, self.image.h - 26)
+        if self.value == Block_Type.BLOCK_BASIC_STRONG_COLOR:
+            image_start_point = Point(0, self.image.h - 26)
+        elif self.value == Block_Type.BLOCK_BASIC_WEAK_COLOR:
+            image_start_point = Point(26 * 2, self.image.h - 26)
 
         self.image.clip_draw(image_start_point.x, image_start_point.y,
                              block_origin_size.width, block_origin_size.height,
                              self.camera_pivot.x, self.camera_pivot.y,
                              (block_origin_size.width - 1) * self.image_multiple_size, (block_origin_size.height - 1) * self.image_multiple_size)
         pass
+
+
+class Wall:
+    pass
 
 
 class Camera:
@@ -89,9 +112,9 @@ class Camera:
 
 canvas_camera = Camera()
 block = [Block()]
-is_up = True
 running = True
 check_simultaneous_key_buffer_dic = {'ctrl': False, 'key_s': False}
+select_block_value = Block_Type.BLOCK_BASIC_STRONG_COLOR
 
 
 def handle_events():
@@ -99,6 +122,7 @@ def handle_events():
     global canvas_camera
     global block
     global check_simultaneous_key_buffer_dic
+    global select_block_value
     events = pico2d.get_events()
 
     # simultaneous = 동시에 일어나는
@@ -125,6 +149,11 @@ def handle_events():
             elif event.key == pico2d.SDLK_LCTRL:
                 check_simultaneous_key_buffer_dic['ctrl'] = True
                 continue
+
+            elif event.key == pico2d.SDLK_1:
+                select_block_value = Block_Type.BLOCK_BASIC_STRONG_COLOR
+            elif event.key == pico2d.SDLK_2:
+                select_block_value = Block_Type.BLOCK_BASIC_WEAK_COLOR
 
         elif event.type == pico2d.SDL_KEYUP:
             if event.key == pico2d.SDLK_s:
@@ -158,7 +187,7 @@ def handle_events():
                     break
 
             if check_duplication is False:
-                block.append(Block(mouse_point.x, mouse_point.y))
+                block.append(Block(select_block_value, mouse_point.x, mouse_point.y))
             pass
     pass
 
@@ -172,14 +201,19 @@ while running:
         val = canvas_camera.trans_point_object_to_camera(i.get_pivot().x, i.get_pivot().y)
         i.set_pivot(val)
 
+    black_background.draw(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2)
     cnt = 0
     for i in block:
         i.draw()
         if check_simultaneous_key_buffer_dic['ctrl'] is True and check_simultaneous_key_buffer_dic['key_s'] is True:
+            if cnt == 0:
+                map_data_file.write(" -----------------------------------------\n ")
+
             cnt += 1
             map_data_file.write(str(cnt) + "번 째 블럭 : " + "< " + str(i.pivot.x) + ", " + str(i.pivot.y) + " > \n")
             pass
 
+    pico2d.draw_rectangle(CANVAS_WIDTH - 350, CANVAS_HEIGHT - 100, CANVAS_WIDTH, CANVAS_HEIGHT)
     pico2d.update_canvas()
 
     pico2d.delay(0.1)
