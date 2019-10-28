@@ -1,11 +1,14 @@
 import pico2d
 import ctypes
 import enum
+import sys
 
 CANVAS_WIDTH, CANVAS_HEIGHT = 1280, 720
 
 pico2d.open_canvas(CANVAS_WIDTH, CANVAS_HEIGHT, False, False)
-map_data_file = open("map_data.txt", 'w')
+map_data_file = open("map_data_save.txt", 'w')
+map_data_load_file = open("map_data_load.txt", 'r')
+map_data_view_file = open("map_data_view.txt", 'w')
 black_background = pico2d.load_image('resource\\black_background.jpg')
 
 
@@ -165,8 +168,11 @@ running = True
 check_simultaneous_key_buffer_dic = {'ctrl': False, 'key_s': False}
 select_block_value = Block_Type.BLOCK_BASIC_STRONG_COLOR_1
 select_wall_value = Wall_Type.WALL_BASIC_1
-curr_selected_object = 'Block' # Block / Wall / Delete_Object
+curr_selected_object = 'Block'  # Block / Wall / Delete_Object
 
+def process_reading_data(line):
+    # object_type,
+    pass
 
 def handle_events():
     global running
@@ -220,6 +226,15 @@ def handle_events():
                 curr_selected_object = 'Wall'
             elif event.key == pico2d.SDLK_DELETE:
                 curr_selected_object = 'Delete_Object'
+            elif event.key == pico2d.SDLK_r:
+                for del_all_cnt in block_list:
+                    del block_list[block_list.index(del_all_cnt)]
+                for del_all_cnt in wall_list:
+                    del wall_list[wall_list.index(del_all_cnt)]
+
+                read_database = map_data_load_file.readlines()
+                curr_read_data = []:
+
                 pass
 
         elif event.type == pico2d.SDL_KEYUP:
@@ -290,20 +305,23 @@ while running:
         i.draw()
         if check_simultaneous_key_buffer_dic['ctrl'] is True and check_simultaneous_key_buffer_dic['key_s'] is True:
             if cnt == 0:
-                map_data_file.write(" -----------------------------------------\n ")
+                map_data_view_file.write(" -----------------------------------------\n ")
 
             cnt += 1
-            map_data_file.write(str(cnt) + "번 째 블럭 : " + "< " + str(i.pivot.x) + ", " + str(i.pivot.y) + " > \n")
+            map_data_file.write("Block" + " " + str(i.value) + " " + str(i.pivot.x) + " " + str(i.pivot.y) + "\n")
+            map_data_view_file.write(str(cnt) + "번 째 블럭 : " + "< " + str(i.pivot.x) + ", " + str(i.pivot.y) + " > \n")
             pass
     cnt = 0
     for i in wall_list:
         i.draw()
         if check_simultaneous_key_buffer_dic['ctrl'] is True and check_simultaneous_key_buffer_dic['key_s'] is True:
             if cnt == 0:
-                map_data_file.write(" -----------------------------------------\n ")
+                map_data_view_file.write(" -----------------------------------------\n ")
 
             cnt += 1
-            map_data_file.write(str(cnt) + "번 째 벽 : " + "< " + str(i.pivot.x) + ", " + str(i.pivot.y) + " > \n")
+            map_data_file.write("Wall" + " " + str(i.value) + " " + str(i.pivot.x) + " " + str(i.pivot.y) + "\n")
+            map_data_view_file.write(str(cnt) + "번 째 벽 : " + "< " + str(i.pivot.x) + ", " + str(i.pivot.y) + " > \n")
+            pico2d.delay(1)
         pass
 
     pico2d.draw_rectangle(CANVAS_WIDTH - 350, CANVAS_HEIGHT - 100, CANVAS_WIDTH, CANVAS_HEIGHT)
@@ -312,5 +330,7 @@ while running:
     pico2d.delay(0.1)
     # pico2d.get_events()
 
+map_data_load_file.close()
 map_data_file.close()
+map_data_view_file.close()
 pico2d.close_canvas()
