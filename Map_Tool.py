@@ -49,8 +49,11 @@ class Wall_Type(enum.Enum):
 
 
 class Block:
+    image = None
+
     def __init__(self, selected_block=None, px=None, py=None):
-        self.image = pico2d.load_image('resource\\Block_Floors.png')
+        if Block.image is None:
+            Block.image = pico2d.load_image('resource\\Block_Floors.png')
         if px is None and py is None:
             self.pivot = Point(500, 500)
             self.camera_pivot = Point(500, 500)
@@ -90,8 +93,11 @@ class Block:
 
 
 class Wall:
+    image = None
+
     def __init__(self, selected_wall=None, px=None, py=None):
-        self.image = pico2d.load_image('resource\\Block_Walls.png')
+        if Wall.image is None:
+            Wall.image = pico2d.load_image('resource\\Block_Walls.png')
         if px is None and py is None:
             self.pivot = Point(400, 500)
             self.camera_pivot = Point(400, 500)
@@ -332,7 +338,6 @@ while running:
     pico2d.delay(0.1)
     # pico2d.get_events()
 
-map_data_load_file.close()
 map_data_file.close()
 map_data_view_file.close()
 pico2d.close_canvas()
