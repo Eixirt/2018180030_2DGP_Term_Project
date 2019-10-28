@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="d5d234e0-713d-4e70-a4cd-8ffc1fca258b" name="Default Changelist" comment="" />
+    <list default="true" id="d5d234e0-713d-4e70-a4cd-8ffc1fca258b" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Map_Tool.py" beforeDir="false" afterPath="$PROJECT_DIR$/Map_Tool.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/map_data_save.txt" beforeDir="false" afterPath="$PROJECT_DIR$/map_data_save.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/map_data_view.txt" beforeDir="false" afterPath="$PROJECT_DIR$/map_data_view.txt" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

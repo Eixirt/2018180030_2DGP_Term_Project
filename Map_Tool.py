@@ -233,7 +233,7 @@ def handle_events():
                     del wall_list[wall_list.index(del_all_cnt)]
 
                 read_database = map_data_load_file.readlines()
-                curr_read_data = []:
+            #                curr_read_data = []:
 
                 pass
 
@@ -317,11 +317,11 @@ while running:
         if check_simultaneous_key_buffer_dic['ctrl'] is True and check_simultaneous_key_buffer_dic['key_s'] is True:
             if cnt == 0:
                 map_data_view_file.write(" -----------------------------------------\n ")
+                pico2d.delay(1)
 
             cnt += 1
             map_data_file.write("Wall" + " " + str(i.value) + " " + str(i.pivot.x) + " " + str(i.pivot.y) + "\n")
             map_data_view_file.write(str(cnt) + "번 째 벽 : " + "< " + str(i.pivot.x) + ", " + str(i.pivot.y) + " > \n")
-            pico2d.delay(1)
         pass
 
     pico2d.draw_rectangle(CANVAS_WIDTH - 350, CANVAS_HEIGHT - 100, CANVAS_WIDTH, CANVAS_HEIGHT)
