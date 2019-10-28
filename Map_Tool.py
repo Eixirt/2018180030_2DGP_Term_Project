@@ -7,7 +7,6 @@ CANVAS_WIDTH, CANVAS_HEIGHT = 1280, 720
 
 pico2d.open_canvas(CANVAS_WIDTH, CANVAS_HEIGHT, False, False)
 map_data_file = open("map_data_save.txt", 'w')
-map_data_load_file = open("map_data_load.txt", 'r')
 map_data_view_file = open("map_data_view.txt", 'w')
 black_background = pico2d.load_image('resource\\black_background.jpg')
 
@@ -170,9 +169,6 @@ select_block_value = Block_Type.BLOCK_BASIC_STRONG_COLOR_1
 select_wall_value = Wall_Type.WALL_BASIC_1
 curr_selected_object = 'Block'  # Block / Wall / Delete_Object
 
-def process_reading_data(line):
-    # object_type,
-    pass
 
 def handle_events():
     global running
@@ -227,14 +223,20 @@ def handle_events():
             elif event.key == pico2d.SDLK_DELETE:
                 curr_selected_object = 'Delete_Object'
             elif event.key == pico2d.SDLK_r:
-                for del_all_cnt in block_list:
-                    del block_list[block_list.index(del_all_cnt)]
-                for del_all_cnt in wall_list:
-                    del wall_list[wall_list.index(del_all_cnt)]
-
-                read_database = map_data_load_file.readlines()
-            #                curr_read_data = []:
-
+                block_list.clear()
+                wall_list.clear()
+                map_data_load_file = open("map_data_load.txt", 'r')
+                read_database = map_data_load_file.read()
+                split_data = read_database.split()
+                for curr_reading_data_idx, curr_reading_data_val in enumerate(split_data):
+                    if split_data[curr_reading_data_idx] == 'Block':
+                        block_list.append(Block(split_data[curr_reading_data_idx+1], int(split_data[curr_reading_data_idx+2]), int(split_data[curr_reading_data_idx+3])))
+                        pass
+                    elif split_data[curr_reading_data_idx] == 'Wall':
+                        wall_list.append(Wall(split_data[curr_reading_data_idx + 1], int(split_data[curr_reading_data_idx + 2]), int(split_data[curr_reading_data_idx + 3])))
+                        pass
+                    curr_reading_data_idx += 3
+                map_data_load_file.close()
                 pass
 
         elif event.type == pico2d.SDL_KEYUP:
