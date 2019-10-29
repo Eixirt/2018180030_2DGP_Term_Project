@@ -6,8 +6,7 @@ import sys
 CANVAS_WIDTH, CANVAS_HEIGHT = 1280, 720
 
 pico2d.open_canvas(CANVAS_WIDTH, CANVAS_HEIGHT, False, False)
-map_data_file = open("map_data_save.txt", 'w')
-map_data_view_file = open("map_data_view.txt", 'w')
+
 black_background = pico2d.load_image('resource\\black_background.jpg')
 
 
@@ -28,24 +27,27 @@ class Rectangle(ctypes.Structure):
 
 
 class Block_Type(enum.Enum):
-    BLOCK_NULL = -1
-    BLOCK_BASIC_STRONG_COLOR_1 = 0
-    BLOCK_BASIC_WEAK_COLOR_1 = 1
-    BLOCK_BASIC_STRONG_COLOR_2 = 2
-    BLOCK_BASIC_WEAK_COLOR_2 = 3
-    BLOCK_CYAN_COLOR = 4
-    BLOCK_PINK_COLOR = 5
-    BLOCK_STAIR_CLOSED = 6
-    BLOCK_STAIR_OPENED = 7
+    BLOCK_NULL = enum.auto()
+    BLOCK_BASIC_STRONG_COLOR_1 = enum.auto()
+    BLOCK_BASIC_WEAK_COLOR_1 = enum.auto()
+    BLOCK_BASIC_STRONG_COLOR_2 = enum.auto()
+    BLOCK_BASIC_WEAK_COLOR_2 = enum.auto()
+    BLOCK_CYAN_COLOR = enum.auto()
+    BLOCK_PINK_COLOR = enum.auto()
+    BLOCK_STAIR_CLOSED = enum.auto()
+    BLOCK_STAIR_OPENED = enum.auto()
 
 
 class Wall_Type(enum.Enum):
-    WALL_NULL = -1
-    WALL_BASIC_1 = 0
-    WALL_BASIC_2 = 1
-    WALL_VINE = 2
-    WALL_STONE = 3
-    WALL_STONE_DAMAGED = 4
+    WALL_NULL = enum.auto()
+    WALL_BASIC_1 = enum.auto()
+    WALL_BASIC_2 = enum.auto()
+    WALL_VINE = enum.auto()
+    WALL_STONE = enum.auto()
+    WALL_STONE_DAMAGED = enum.auto()
+    WALL_SKULL_1 = enum.auto()
+    WALL_SKULL_2 = enum.auto()
+    WALL_SKULL_3 = enum.auto()
 
 
 class Block:
@@ -128,6 +130,18 @@ class Wall:
             image_start_point = Point(0, self.image.h - 40)
         elif self.value == Wall_Type.WALL_BASIC_2:
             image_start_point = Point(24 * 1, self.image.h - 40)
+        elif self.value == Wall_Type.WALL_VINE:
+            image_start_point = Point(24 * 2, self.image.h - 40)
+        elif self.value == Wall_Type.WALL_STONE:
+            image_start_point = Point(24 * 29, self.image.h - 40)
+        elif self.value == Wall_Type.WALL_STONE_DAMAGED:
+            image_start_point = Point(24 * 30, self.image.h - 40)
+        elif self.value == Wall_Type.WALL_SKULL_1:
+            image_start_point = Point(24 * 7, self.image.h - 40)
+        elif self.value == Wall_Type.WALL_SKULL_2:
+            image_start_point = Point(24 * 8, self.image.h - 40)
+        elif self.value == Wall_Type.WALL_SKULL_3:
+            image_start_point = Point(24 * 9, self.image.h - 40)
 
         self.image.clip_draw(image_start_point.x, image_start_point.y,
                              wall_origin_size.width, wall_origin_size.height,
@@ -226,6 +240,25 @@ def handle_events():
             elif event.key == pico2d.SDLK_4:
                 select_wall_value = Wall_Type.WALL_BASIC_2
                 curr_selected_object = 'Wall'
+            elif event.key == pico2d.SDLK_5:
+                select_wall_value = Wall_Type.WALL_VINE
+                curr_selected_object = 'Wall'
+            elif event.key == pico2d.SDLK_6:
+                select_wall_value = Wall_Type.WALL_STONE
+                curr_selected_object = 'Wall'
+            elif event.key == pico2d.SDLK_7:
+                select_wall_value = Wall_Type.WALL_STONE_DAMAGED
+                curr_selected_object = 'Wall'
+            elif event.key == pico2d.SDLK_8:
+                select_wall_value = Wall_Type.WALL_SKULL_1
+                curr_selected_object = 'Wall'
+            elif event.key == pico2d.SDLK_9:
+                select_wall_value = Wall_Type.WALL_SKULL_2
+                curr_selected_object = 'Wall'
+            elif event.key == pico2d.SDLK_0:
+                select_wall_value = Wall_Type.WALL_SKULL_3
+                curr_selected_object = 'Wall'
+
             elif event.key == pico2d.SDLK_DELETE:
                 curr_selected_object = 'Delete_Object'
             elif event.key == pico2d.SDLK_r:
@@ -236,10 +269,15 @@ def handle_events():
                 split_data = read_database.split()
                 for curr_reading_data_idx, curr_reading_data_val in enumerate(split_data):
                     if split_data[curr_reading_data_idx] == 'Block':
-                        block_list.append(Block(split_data[curr_reading_data_idx+1], int(split_data[curr_reading_data_idx+2]), int(split_data[curr_reading_data_idx+3])))
+                        str_to_enum_val = str(split_data[curr_reading_data_idx + 1])
+                        str_to_enum_val = str_to_enum_val.replace('Block_Type.', "")
+                        block_list.append(Block(Block_Type[str_to_enum_val], int(split_data[curr_reading_data_idx+2]), int(split_data[curr_reading_data_idx+3])))
                         pass
                     elif split_data[curr_reading_data_idx] == 'Wall':
-                        wall_list.append(Wall(split_data[curr_reading_data_idx + 1], int(split_data[curr_reading_data_idx + 2]), int(split_data[curr_reading_data_idx + 3])))
+
+                        str_to_enum_val = str(split_data[curr_reading_data_idx + 1])
+                        str_to_enum_val = str_to_enum_val.replace('Wall_Type.', "")
+                        wall_list.append(Wall(Wall_Type[str_to_enum_val], int(split_data[curr_reading_data_idx + 2]), int(split_data[curr_reading_data_idx + 3])))
                         pass
                     curr_reading_data_idx += 3
                 map_data_load_file.close()
@@ -313,31 +351,43 @@ while running:
         i.draw()
         if check_simultaneous_key_buffer_dic['ctrl'] is True and check_simultaneous_key_buffer_dic['key_s'] is True:
             if cnt == 0:
+                map_data_file = open("map_data_save.txt", 'w')
+                map_data_view_file = open("map_data_view.txt", 'w')
+
                 map_data_view_file.write(" -----------------------------------------\n ")
 
             cnt += 1
             map_data_file.write("Block" + " " + str(i.value) + " " + str(i.pivot.x) + " " + str(i.pivot.y) + "\n")
             map_data_view_file.write(str(cnt) + "번 째 블럭 : " + "< " + str(i.pivot.x) + ", " + str(i.pivot.y) + " > \n")
+
+            if block_list.index(i) == (len(block_list) - 1):
+                map_data_file.close()
+                map_data_view_file.close()
+                pass
             pass
     cnt = 0
     for i in wall_list:
         i.draw()
         if check_simultaneous_key_buffer_dic['ctrl'] is True and check_simultaneous_key_buffer_dic['key_s'] is True:
             if cnt == 0:
+                map_data_file = open("map_data_save.txt", 'a')
+                map_data_view_file = open("map_data_view.txt", 'a')
                 map_data_view_file.write(" -----------------------------------------\n ")
                 pico2d.delay(1)
 
             cnt += 1
             map_data_file.write("Wall" + " " + str(i.value) + " " + str(i.pivot.x) + " " + str(i.pivot.y) + "\n")
             map_data_view_file.write(str(cnt) + "번 째 벽 : " + "< " + str(i.pivot.x) + ", " + str(i.pivot.y) + " > \n")
+
+            if wall_list.index(i) == (len(wall_list) - 1):
+                map_data_file.close()
+                map_data_view_file.close()
+                pass
         pass
 
-    pico2d.draw_rectangle(CANVAS_WIDTH - 350, CANVAS_HEIGHT - 100, CANVAS_WIDTH, CANVAS_HEIGHT)
     pico2d.update_canvas()
 
     pico2d.delay(0.1)
     # pico2d.get_events()
 
-map_data_file.close()
-map_data_view_file.close()
 pico2d.close_canvas()
