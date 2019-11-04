@@ -81,7 +81,7 @@ class Block:
     def update(self):
         pass
 
-    def set_pivot(self, pivot_data):
+    def set_pivot_from_camera(self, pivot_data):
         self.camera_pivot = pivot_data
         pass
 
@@ -122,7 +122,7 @@ class Wall:
     def update(self):
         pass
 
-    def set_pivot(self, pivot_data):
+    def set_pivot_from_camera(self, pivot_data):
         self.camera_pivot = pivot_data
         pass
 
@@ -154,13 +154,33 @@ class Wall:
 
 
 class Monster:
-    Image = None
-    def __init__(self):
+    image = None
+
+    def __init__(self, selected_mob=None, px=None, py=None):
+        if Monster.image is None:
+            Monster.image = pico2d.load_image('resource\\Block_Walls.png')
+        if px is None and py is None:
+            self.pivot = Point(400, 500)
+            self.camera_pivot = Point(400, 500)
+        else:
+            self.pivot = Point(px, py)
+            self.camera_pivot = Point(px, py)
+
+        self.image_multiple_size = 2
+        if selected_mob is None:
+            self.value = Monster_Type.MONSTER_SLIME_GREEN
+        else:
+            self.value = selected_mob
         pass
 
     def update(self):
         pass
 
+    def set_pivot(self, mob_type):
+        pass
+
+    def draw(self):
+        pass
 
     pass
 
@@ -202,7 +222,7 @@ running = True
 check_simultaneous_key_buffer_dic = {'ctrl': False, 'key_s': False}
 select_block_value = Block_Type.BLOCK_BASIC_STRONG_COLOR_1
 select_wall_value = Wall_Type.WALL_BASIC_1
-curr_selected_object = 'Block'  # Block / Wall / Delete_Object
+curr_selected_object = 'Block'  # Block / Wall / Monster / Delete_Object
 
 
 def handle_events():
@@ -273,6 +293,23 @@ def handle_events():
             elif event.key == pico2d.SDLK_0:
                 select_wall_value = Wall_Type.WALL_SKULL_3
                 curr_selected_object = 'Wall'
+
+            # 몬스터 선택
+            elif event.key == pico2d.SDLK_y:
+                select_wall_value = Monster_Type.MONSTER_SLIME_GREEN
+                curr_selected_object = 'Monster'
+            elif event.key == pico2d.SDLK_u:
+                select_wall_value = Monster_Type.MONSTER_SLIME_BLUE
+                curr_selected_object = 'Monster'
+            elif event.key == pico2d.SDLK_i:
+                select_wall_value = Monster_Type.MONSTER_SKULL_WHITE
+                curr_selected_object = 'Monster'
+            elif event.key == pico2d.SDLK_o:
+                select_wall_value = Monster_Type.MONSTER_BAT_BASIC
+                curr_selected_object = 'Monster'
+            elif event.key == pico2d.SDLK_p:
+                select_wall_value = Monster_Type.MONSTER_BANSHEE
+                curr_selected_object = 'Monster'
 
             elif event.key == pico2d.SDLK_DELETE:
                 curr_selected_object = 'Delete_Object'
@@ -354,11 +391,11 @@ while running:
     canvas_camera.update()
     for i in block_list:
         val = canvas_camera.trans_point_object_to_camera(i.pivot.x, i.pivot.y)
-        i.set_pivot(val)
+        i.set_pivot_from_camera(val)
 
     for i in wall_list:
         val = canvas_camera.trans_point_object_to_camera(i.pivot.x, i.pivot.y)
-        i.set_pivot(val)
+        i.set_pivot_from_camera(val)
 
     black_background.draw(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2)
     cnt = 0
