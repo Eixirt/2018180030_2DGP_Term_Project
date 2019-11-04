@@ -3,7 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="d5d234e0-713d-4e70-a4cd-8ffc1fca258b" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Map_Tool.py" beforeDir="false" afterPath="$PROJECT_DIR$/Map_Tool.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/map_data_load.txt" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -23,7 +23,7 @@
   </component>
   <component name="ProjectId" id="1RhNiJbvcNquw83jS1ee7SekzPJ" />
   <component name="PropertiesComponent">
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../2019_2_2DGP/2DGP/Labs/Lecture10_Game_Framework" />
     <property name="settings.editor.selected.configurable" value="preferences.sourceCode" />
   </component>
   <component name="RecentsManager">
@@ -43,7 +43,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.Map_Tool">
+  <component name="RunManager" selected="Python.Draw_Ui">
     <configuration name="Draw_Ui" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="2018180030_2DGP_Term_Project" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -109,8 +109,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.Map_Tool" />
         <item itemvalue="Python.Draw_Ui" />
+        <item itemvalue="Python.Map_Tool" />
         <item itemvalue="Python.character_jump" />
       </list>
     </recent_temporary>
@@ -140,16 +140,5 @@
         </entry>
       </map>
     </option>
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/Map_Tool.py</url>
-          <line>381</line>
-          <option name="timeStamp" value="2" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>
