@@ -50,6 +50,15 @@ class Wall_Type(enum.Enum):
     WALL_SKULL_3 = enum.auto()
 
 
+class Monster_Type(enum.Enum):
+    MONSTER_NULL = enum.auto()
+    MONSTER_SLIME_GREEN = enum.auto()
+    MONSTER_SLIME_BLUE = enum.auto()
+    MONSTER_SKULL_WHITE = enum.auto()
+    MONSTER_BAT_BASIC = enum.auto()
+    MONSTER_BANSHEE = enum.auto()
+
+
 class Block:
     image = None
 
@@ -71,9 +80,6 @@ class Block:
 
     def update(self):
         pass
-
-    def get_pivot(self):
-        return self.pivot
 
     def set_pivot(self, pivot_data):
         self.camera_pivot = pivot_data
@@ -116,9 +122,6 @@ class Wall:
     def update(self):
         pass
 
-    def get_pivot(self):
-        return self.pivot
-
     def set_pivot(self, pivot_data):
         self.camera_pivot = pivot_data
         pass
@@ -148,6 +151,18 @@ class Wall:
                              self.camera_pivot.x, self.camera_pivot.y,
                              (wall_origin_size.width + 1) * self.image_multiple_size, (wall_origin_size.height - 1) * self.image_multiple_size)
         pass
+
+
+class Monster:
+    Image = None
+    def __init__(self):
+        pass
+
+    def update(self):
+        pass
+
+
+    pass
 
 
 class Camera:
@@ -338,11 +353,11 @@ while running:
 
     canvas_camera.update()
     for i in block_list:
-        val = canvas_camera.trans_point_object_to_camera(i.get_pivot().x, i.get_pivot().y)
+        val = canvas_camera.trans_point_object_to_camera(i.pivot.x, i.pivot.y)
         i.set_pivot(val)
 
     for i in wall_list:
-        val = canvas_camera.trans_point_object_to_camera(i.get_pivot().x, i.get_pivot().y)
+        val = canvas_camera.trans_point_object_to_camera(i.pivot.x, i.pivot.y)
         i.set_pivot(val)
 
     black_background.draw(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2)

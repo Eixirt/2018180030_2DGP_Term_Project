@@ -3,7 +3,10 @@
   <component name="ChangeListManager">
     <list default="true" id="d5d234e0-713d-4e70-a4cd-8ffc1fca258b" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/map_data_load.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2차발표 ppt.pptx" beforeDir="false" afterPath="$PROJECT_DIR$/2차발표 ppt.pptx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GameFrameWork.py" beforeDir="false" afterPath="$PROJECT_DIR$/GameFrameWork.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Map_Tool.py" beforeDir="false" afterPath="$PROJECT_DIR$/Map_Tool.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NecroDancer.py" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -43,7 +46,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.Draw_Ui">
+  <component name="RunManager" selected="Python.Map_Tool">
     <configuration name="Draw_Ui" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="2018180030_2DGP_Term_Project" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -109,8 +112,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.Draw_Ui" />
         <item itemvalue="Python.Map_Tool" />
+        <item itemvalue="Python.Draw_Ui" />
         <item itemvalue="Python.character_jump" />
       </list>
     </recent_temporary>
