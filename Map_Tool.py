@@ -72,7 +72,7 @@ class Block:
             self.pivot = Point(px, py)
             self.camera_pivot = Point(px, py)
 
-        self.image_multiple_size = 2
+        self.image_scale = 2
         if selected_block is None:
             self.value = Block_Type.BLOCK_BASIC_STRONG_COLOR_1
         else:
@@ -96,7 +96,7 @@ class Block:
         self.image.clip_draw(image_start_point.x, image_start_point.y,
                              block_origin_size.width, block_origin_size.height,
                              self.camera_pivot.x, self.camera_pivot.y,
-                             (block_origin_size.width - 1) * self.image_multiple_size, (block_origin_size.height - 1) * self.image_multiple_size)
+                             (block_origin_size.width - 1) * self.image_scale, (block_origin_size.height - 1) * self.image_scale)
         pass
 
 
@@ -113,7 +113,7 @@ class Wall:
             self.pivot = Point(px, py)
             self.camera_pivot = Point(px, py)
 
-        self.image_multiple_size = 2
+        self.image_scale = 2
         if selected_wall is None:
             self.value = Wall_Type.WALL_BASIC_1
         else:
@@ -149,7 +149,7 @@ class Wall:
         self.image.clip_draw(image_start_point.x, image_start_point.y,
                              wall_origin_size.width, wall_origin_size.height,
                              self.camera_pivot.x, self.camera_pivot.y,
-                             (wall_origin_size.width + 1) * self.image_multiple_size, (wall_origin_size.height - 1) * self.image_multiple_size)
+                             (wall_origin_size.width + 1) * self.image_scale, (wall_origin_size.height - 1) * self.image_scale)
         pass
 
 
@@ -166,7 +166,7 @@ class Monster:
             self.pivot = Point(px, py)
             self.camera_pivot = Point(px, py)
 
-        self.image_multiple_size = 2
+        self.image_scale = 2
         if selected_mob is None:
             self.value = Monster_Type.MONSTER_SLIME_GREEN
         else:
