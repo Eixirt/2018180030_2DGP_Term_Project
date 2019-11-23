@@ -4,6 +4,7 @@ import enum
 
 import GameWorldManager
 import BlockSet
+import Monster
 
 
 class Point(ctypes.Structure):
@@ -25,11 +26,20 @@ Wall_Type_Values = list(range(len(Wall_Type_Keys)))
 Wall_Type = dict(zip(Wall_Type_Keys, Wall_Type_Values))
 
 
+Monster_Type_Keys = ['MONSTER_NULL',
+                     'MONSTER_SLIME_GREEN', 'MONSTER_SLIME_BLUE',
+                     'MONSTER_SKULL_WHITE', 'MONSTER_BAT_BASIC',
+                     'MONSTER_BANSHEE']
+Monster_Type_Values = list(range(len(Monster_Type_Keys)))
+Monster_Type = dict(zip(Monster_Type_Keys, Monster_Type_Values))
+
+
 class FirstStage:
 
     def __init__(self):
         self.block_list = []
         self.wall_list = []
+        self.monster_list = [Monster.Slime_Green(600, 350 + 10)]
 
         self.init_map_objects()
 
@@ -37,6 +47,8 @@ class FirstStage:
             GameWorldManager.add_object(block_object, 1)
         for wall_object in self.wall_list:
             GameWorldManager.add_object(wall_object, 1)
+        for monster_object in self.monster_list:
+            GameWorldManager.add_object(monster_object, 2)
         pass
 
     def init_map_objects(self):

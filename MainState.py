@@ -6,7 +6,6 @@ import Camera
 
 import Player
 import Game_UI
-import BackGround
 
 import Map_First_Stage
 
