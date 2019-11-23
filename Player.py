@@ -1,6 +1,7 @@
 import pico2d
 import ctypes
 import math
+import copy
 
 import GameFrameWork
 import GameWorldManager
@@ -50,6 +51,7 @@ class Dagger_Attack:
                                        self.rad, self.flip,
                                        self.pivot.x - 100, self.pivot.y + effect_origin_size.height * 0.5 * self.image_multiple_size,
                                        effect_origin_size.width * self.image_multiple_size, effect_origin_size.height * self.image_multiple_size)
+    pass
 
 
 RIGHT_KEY_DOWN, LEFT_KEY_DOWN, UP_KEY_DOWN, DOWN_KEY_DOWN, RIGHT_KEY_UP, LEFT_KEY_UP, UP_KEY_UP, DOWN_KEY_UP, \
@@ -90,16 +92,56 @@ TIME_PER_ACTION = 0.5
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
 FRAMES_PER_ACTION = 4
 
+TIME_PER_JUMP = 0.1
+JUMP_PER_TIME = 1.0 / TIME_PER_JUMP
+FRAMES_PER_JUMP = 50
+
 
 class IdleState:
-
     @staticmethod
     def enter_state(player, event):
+        # 이동
+        if player.check_jumping is False:
+            if event == W_KEY_DOWN:
+                # player.pivot.y += 50
+                pass
+            elif event == A_KEY_DOWN:
+                # player.pivot.x -= 50
+                # player.rad = math.pi
+                # player.flip = 'v'
+                pass
+            elif event == S_KEY_DOWN:
+                # player.pivot.y -= 50
+                pass
+            elif event == D_KEY_DOWN:
+                # player.pivot.x += 50
+                # player.rad = 0
+                # player.flip = ''
+                pass
+
+        # 공격
+
         pass
 
     @staticmethod
     def exit_state(player, event):
-
+        if player.check_jumping is False:
+            if event == W_KEY_DOWN:
+                player.init_jump('UP')
+                pass
+            elif event == A_KEY_DOWN:
+                player.init_jump('LEFT')
+                player.rad = math.pi
+                player.flip = 'v'
+                pass
+            elif event == S_KEY_DOWN:
+                player.init_jump('DOWN')
+                pass
+            elif event == D_KEY_DOWN:
+                player.init_jump('RIGHT')
+                player.rad = 0
+                player.flip = ''
+                pass
         pass
 
     @staticmethod
@@ -107,6 +149,8 @@ class IdleState:
         player.frame['x'] = (player.frame['x'] + FRAMES_PER_ACTION * ACTION_PER_TIME * GameFrameWork.frame_time) % 4
         if player.frame['x'] == 0:
             player.frame['y'] = (player.frame['y'] + 1) % 2
+            pass
+
         pass
 
     @staticmethod
@@ -152,6 +196,15 @@ class Player_Cadence:
         self.rad = 0
         self.flip = ''
 
+        # for jump
+        self.check_jumping = False
+        self.jumping_count = 0
+        self.start_point = self.pivot
+        self.mid_point = self.pivot
+        self.end_point = self.pivot
+        self.jump_dir = None
+        self.start_jumping_time = 0.0
+
         self.event_que = []
         self.init_state = IdleState
         self.curr_state = IdleState
@@ -168,19 +221,87 @@ class Player_Cadence:
         self.equip_body = 0
         self.equip_head = 0
 
-    def jump(self, key):
-        if key == 'w':
-            self.pivot.y += 50
-        elif key == 'a':
-            self.pivot.x -= 50
-            self.rad = math.pi
-            self.flip = 'v'
-        elif key == 's':
-            self.pivot.y -= 50
-        elif key == 'd':
-            self.pivot.x += 50
-            self.rad = 0
-            self.flip = ''
+    def init_jump(self, jump_dir=None):
+        if self.check_jumping is False:
+            self.check_jumping = True
+            self.start_point = copy.copy(self.pivot)
+            self.mid_point = copy.copy(self.pivot)
+            self.end_point = copy.copy(self.pivot)
+            self.jump_dir = jump_dir
+            self.jumping_count = 0
+            self.start_jumping_time = pico2d.get_time()
+            if self.jump_dir == 'UP':
+                self.mid_point.x += 10
+                self.mid_point.y += 25
+
+                self.end_point.y += 50
+                pass
+            elif self.jump_dir == 'DOWN':
+                self.mid_point.x += 10
+                self.mid_point.y -= 25
+
+                self.end_point.y -= 50
+                pass
+            elif self.jump_dir == 'LEFT':
+                self.mid_point.x -= 25
+                self.mid_point.y += 10
+
+                self.end_point.x -= 50
+                pass
+            elif self.jump_dir == 'RIGHT':
+                self.mid_point.x += 25
+                self.mid_point.y += 10
+
+                self.end_point.x += 50
+                pass
+
+            pass
+        pass
+
+    def jump(self):
+        jump_time = pico2d.get_time() - self.start_jumping_time
+        self.jumping_count = (self.jumping_count + FRAMES_PER_JUMP * JUMP_PER_TIME * GameFrameWork.frame_time)
+        jump_progress = int(self.jumping_count) / FRAMES_PER_JUMP
+        # x = (2 * t ** 2 - 3 * t + 1) * p1[0] + (-4 * t ** 2 + 4 * t) * p2[0] + (2 * t ** 2 - t) * p3[0]
+        # y = (2 * t ** 2 - 3 * t + 1) * p1[1] + (-4 * t ** 2 + 4 * t) * p2[1] + (2 * t ** 2 - t) * p3[1]
+
+        self.pivot.x = int((2 * jump_progress ** 2 - 3 * jump_progress + 1) * self.start_point.x +
+                           (-4 * jump_progress ** 2 + 4 * jump_progress) * self.mid_point.x +
+                           (2 * jump_progress ** 2 - jump_progress) * self.end_point.x)
+
+        self.pivot.y = int((2 * jump_progress ** 2 - 3 * jump_progress + 1) * self.start_point.y +
+                           (-4 * jump_progress ** 2 + 4 * jump_progress) * self.mid_point.y +
+                           (2 * jump_progress ** 2 - jump_progress) * self.end_point.y)
+        if self.jump_dir == 'UP':
+            if int(self.jumping_count) >= FRAMES_PER_JUMP - 1:
+                self.pivot.x = copy.copy(self.end_point.x)
+                self.pivot.y = copy.copy(self.end_point.y)
+                self.check_jumping = False
+                pass
+            pass
+        elif self.jump_dir == 'DOWN':
+            if int(self.jumping_count) >= FRAMES_PER_JUMP - 1:
+                self.pivot.x = copy.copy(self.end_point.x)
+                self.pivot.y = copy.copy(self.end_point.y)
+                self.check_jumping = False
+                pass
+            pass
+        elif self.jump_dir == 'LEFT':
+            if int(self.jumping_count) >= FRAMES_PER_JUMP - 1:
+                self.pivot.x = copy.copy(self.end_point.x)
+                self.pivot.y = copy.copy(self.end_point.y)
+                self.check_jumping = False
+                pass
+            pass
+        elif self.jump_dir == 'RIGHT':
+            if int(self.jumping_count) >= FRAMES_PER_JUMP - 1:
+                self.pivot.x = copy.copy(self.end_point.x)
+                self.pivot.y = copy.copy(self.end_point.y)
+                self.check_jumping = False
+                pass
+            pass
+
+        pass
 
     def add_event(self, event):
         self.event_que.insert(0, event)
@@ -201,6 +322,9 @@ class Player_Cadence:
             self.curr_state = next_state_table[self.curr_state][event]
             self.curr_state.enter_state(self, event)
         pass
+
+        if self.check_jumping is True:
+            self.jump()
     pass
 
     def draw(self):
