@@ -88,6 +88,7 @@ class Block:
         pass
 
     def draw(self):
+
         block_origin_size = Image_Origin_Size(26, 26)
         image_start_point = Point(0, self.image.h - 26)
         if self.value == Block_Type.BLOCK_BASIC_STRONG_COLOR_1:

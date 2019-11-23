@@ -4,7 +4,7 @@ import math
 import copy
 
 import GameFrameWork
-import GameWorldManager
+import MainState
 
 
 # Frame 구조체
@@ -155,18 +155,19 @@ class IdleState:
 
     @staticmethod
     def draw(player):
+        camera_x, camera_y = player.pivot.x - MainState.BlackBoard['camera']['camera_left'], player.pivot.y - MainState.BlackBoard['camera']['camera_bottom']
         # 몸
         player.image.clip_composite_draw(int(player.frame['x']) * player.BODY_IMAGE_WIDTH, player.image.h - 58 - player.BODY_IMAGE_HEIGHT,
                                          player.BODY_IMAGE_WIDTH, player.BODY_IMAGE_HEIGHT,
                                          player.rad, player.flip,
-                                         player.pivot.x, player.pivot.y + 0.5 * player.BODY_IMAGE_HEIGHT * IMAGE_SCALE,
+                                         camera_x, camera_y + 0.5 * player.BODY_IMAGE_HEIGHT * IMAGE_SCALE,
                                          player.BODY_IMAGE_WIDTH * IMAGE_SCALE, player.BODY_IMAGE_HEIGHT * IMAGE_SCALE)
 
         # 머리
         player.image.clip_composite_draw(int(player.frame['x']) * player.HEAD_IMAGE_WIDTH, player.image.h - player.HEAD_IMAGE_HEIGHT - 24 * int(player.frame['y']),
                                          player.HEAD_IMAGE_WIDTH, player.HEAD_IMAGE_HEIGHT,
                                          player.rad, player.flip,
-                                         player.pivot.x, player.pivot.y + 0.5 * player.HEAD_IMAGE_HEIGHT * IMAGE_SCALE + player.HEAD_INTERVAL,
+                                         camera_x, camera_y + 0.5 * player.HEAD_IMAGE_HEIGHT * IMAGE_SCALE + player.HEAD_INTERVAL,
                                          player.HEAD_IMAGE_WIDTH * IMAGE_SCALE, player.HEAD_IMAGE_HEIGHT * IMAGE_SCALE)
         pass
     pass
@@ -191,7 +192,7 @@ class Player_Cadence:
 
     def __init__(self):
         self.image = pico2d.load_image('resource\\Character_Player.png')
-        self.pivot = Point(500, 100)
+        self.pivot = Point(600, 345)
         self.frame = {'x': 0, 'y': 0}
         self.rad = 0
         self.flip = ''
@@ -220,6 +221,8 @@ class Player_Cadence:
         self.equip_weapon = Weapon_Type['WEAPON_DAGGER_BASIC']
         self.equip_body = 0
         self.equip_head = 0
+
+        self.bg = None
 
     def init_jump(self, jump_dir=None):
         if self.check_jumping is False:
@@ -302,6 +305,11 @@ class Player_Cadence:
             pass
 
         pass
+
+    def set_background(self, bg):
+        self.bg = bg
+        self.pivot.x = self.bg.w // 2
+        self.pivot.y = self.bg.h // 2
 
     def add_event(self, event):
         self.event_que.insert(0, event)
