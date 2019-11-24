@@ -52,6 +52,18 @@ class Wall_Type(enum.Enum):
     WALL_SKULL_3 = enum.auto()
 
 
+class Under_Wall_Type(enum.Enum):
+    WALL_NULL = enum.auto()
+    WALL_BASIC_1 = enum.auto()
+    WALL_BASIC_2 = enum.auto()
+    WALL_VINE = enum.auto()
+    WALL_STONE = enum.auto()
+    WALL_STONE_DAMAGED = enum.auto()
+    WALL_SKULL_1 = enum.auto()
+    WALL_SKULL_2 = enum.auto()
+    WALL_SKULL_3 = enum.auto()
+
+
 class Monster_Type(enum.Enum):
     MONSTER_NULL = enum.auto()
     MONSTER_SLIME_GREEN = enum.auto()
@@ -225,7 +237,7 @@ running = True
 check_simultaneous_key_buffer_dic = {'ctrl': False, 'key_s': False}
 select_block_value = Block_Type.BLOCK_BASIC_STRONG_COLOR_1
 select_wall_value = Wall_Type.WALL_BASIC_1
-curr_selected_object = 'Block'  # Block / Wall / Monster / Delete_Object
+curr_selected_object = 'Block'  # Block / Wall / Under_Wall / Monster / Delete_Object
 
 
 def handle_events():

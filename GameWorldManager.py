@@ -1,10 +1,13 @@
 
 # layer 0: Background Objects
 # layer 1: Map Objects
-# layer 2: Foreground Objects
-# layer 3: UI Objects
+# layer 2: Monster Objects
+# layer 3: Player Objects
+# layer 4: Map-UnderWall Objects
+# layer 5: UI Objects
+# layer 6: Hit Image and Message
 
-objects = [[], [], [], []]
+objects = [[], [], [], [], [], [], []]
 
 
 def add_object(o, layer):

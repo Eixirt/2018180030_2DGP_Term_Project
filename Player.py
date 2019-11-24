@@ -5,6 +5,8 @@ import copy
 
 import GameFrameWork
 import MainState
+import GameWorldManager
+import Camera
 
 
 # Frame 구조체
@@ -13,44 +15,78 @@ class Point(ctypes.Structure):
                 ("y", ctypes.c_int)]
 
 
-class Image_Origin_Size(ctypes.Structure):
-    _fields_ = [("width", ctypes.c_int),
-                ("height", ctypes.c_int)]
-
-
 class Dagger_Attack:
-    def __init__(self):
+    DAGGER_EFFECT_WIDTH = 21
+    DAGGER_EFFECT_HEIGHT = 16
+
+    ATTACK_TIMER = 30
+    ATTACK_DELAY_TIMER = 50
+
+    TIME_PER_ACTION = 0.2
+    ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
+    FRAMES_PER_ACTION = 3
+
+    def __init__(self, x=None, y=None):
         self.image = pico2d.load_image('resource\\Effect_Weapon.png')
-        self.pivot = Point(700, 100)
+        self.pivot = Point(0, 0)
+        if x is not None and y is not None:
+            self.pivot = Point(x, y)
         self.frame = 0
-        self.image_multiple_size = 2
         self.rad = 0
         self.flip = ''
 
-    def attack_direction(self, key):
-        if key == 'UP':
-            self.rad = math.pi / 2
-            self.flip = 'v'
-        elif key == 'LEFT':
-            self.rad = math.pi
-            self.flip = 'v'
-        elif key == 'DOWN':
-            self.rad = 1.5 * math.pi
-            self.flip = ''
-        elif key == 'RIGHT':
-            self.rad = 0
-            self.flip = ''
+        self.check_attack = False
+        self.check_possible_attack = False
+        self.attack_delay = Dagger_Attack.ATTACK_DELAY_TIMER
+        self.timer = Dagger_Attack.ATTACK_TIMER
+        self.dir = None
+
+        self.damage = 1
+
+    def init_attack(self, key):
+        if self.check_attack is False:
+            self.check_attack = True
+            self.check_possible_attack = True
+            self.pivot = Point(MainState.BlackBoard['player']['x'], MainState.BlackBoard['player']['y'])
+            self.dir = key
+            self.timer = Dagger_Attack.ATTACK_TIMER
+            self.frame = 0
+            self.attack_delay = Dagger_Attack.ATTACK_DELAY_TIMER
+
+            if key == 'UP':
+                self.rad = math.pi / 2
+                self.flip = 'v'
+                self.pivot.y += 50
+            elif key == 'LEFT':
+                self.rad = math.pi
+                self.flip = 'v'
+                self.pivot.x -= 50
+            elif key == 'DOWN':
+                self.rad = 1.5 * math.pi
+                self.flip = ''
+                self.pivot.y -= 50
+            elif key == 'RIGHT':
+                self.rad = 0
+                self.flip = ''
+                self.pivot.x += 50
 
     def update(self):
-        self.frame = (self.frame + 1) % 3
+        # self.frame = (self.frame + 1) % 3
+        self.frame = (self.frame + Dagger_Attack.FRAMES_PER_ACTION * Dagger_Attack.ACTION_PER_TIME * GameFrameWork.frame_time) % 3
+        self.timer -= 1
+        if self.timer < 0:
+            self.attack_delay -= 1
+            if self.attack_delay < 0:
+                self.check_attack = False
 
     def draw(self):
-        effect_origin_size = Image_Origin_Size(21, 16)
-        self.image.clip_composite_draw(299 + self.frame * effect_origin_size.width, self.image.h - 19 - effect_origin_size.height,
-                                       effect_origin_size.width, effect_origin_size.height,
+        camera_x, camera_y = self.pivot.x - MainState.BlackBoard['camera']['camera_left'], self.pivot.y - MainState.BlackBoard['camera']['camera_bottom']
+
+        self.image.clip_composite_draw(299 + int(self.frame) * Dagger_Attack.DAGGER_EFFECT_WIDTH, self.image.h - 19 - Dagger_Attack.DAGGER_EFFECT_HEIGHT,
+                                       Dagger_Attack.DAGGER_EFFECT_WIDTH, Dagger_Attack.DAGGER_EFFECT_HEIGHT,
                                        self.rad, self.flip,
-                                       self.pivot.x - 100, self.pivot.y + effect_origin_size.height * 0.5 * self.image_multiple_size,
-                                       effect_origin_size.width * self.image_multiple_size, effect_origin_size.height * self.image_multiple_size)
+                                       camera_x, camera_y + Dagger_Attack.DAGGER_EFFECT_HEIGHT * 0.5 * IMAGE_SCALE,
+                                       Dagger_Attack.DAGGER_EFFECT_WIDTH * IMAGE_SCALE, Dagger_Attack.DAGGER_EFFECT_HEIGHT * IMAGE_SCALE)
     pass
 
 
@@ -142,6 +178,20 @@ class IdleState:
                 player.rad = 0
                 player.flip = ''
                 pass
+
+            if player.equip_weapon_object.check_attack is False:
+                if event == UP_KEY_DOWN:
+                    player.equip_weapon_object.init_attack('UP')
+                    pass
+                elif event == DOWN_KEY_DOWN:
+                    player.equip_weapon_object.init_attack('DOWN')
+                    pass
+                elif event == LEFT_KEY_DOWN:
+                    player.equip_weapon_object.init_attack('LEFT')
+                    pass
+                elif event == RIGHT_KEY_DOWN:
+                    player.equip_weapon_object.init_attack('RIGHT')
+                    pass
         pass
 
     @staticmethod
@@ -151,12 +201,15 @@ class IdleState:
             player.frame['y'] = (player.frame['y'] + 1) % 2
             pass
 
+        if player.equip_weapon_object.check_attack is True:
+            player.equip_weapon_object.update()
         pass
 
     @staticmethod
     def draw(player):
         camera_x, camera_y = player.pivot.x - MainState.BlackBoard['camera']['camera_left'], player.pivot.y - MainState.BlackBoard['camera']['camera_bottom']
         # 몸
+
         player.image.clip_composite_draw(int(player.frame['x']) * player.BODY_IMAGE_WIDTH, player.image.h - 58 - player.BODY_IMAGE_HEIGHT,
                                          player.BODY_IMAGE_WIDTH, player.BODY_IMAGE_HEIGHT,
                                          player.rad, player.flip,
@@ -169,6 +222,10 @@ class IdleState:
                                          player.rad, player.flip,
                                          camera_x, camera_y + 0.5 * player.HEAD_IMAGE_HEIGHT * IMAGE_SCALE + player.HEAD_INTERVAL,
                                          player.HEAD_IMAGE_WIDTH * IMAGE_SCALE, player.HEAD_IMAGE_HEIGHT * IMAGE_SCALE)
+
+        # 대거 공격
+        if player.equip_weapon_object.check_attack is True and player.equip_weapon_object.timer >= 0:
+            player.equip_weapon_object.draw()
         pass
     pass
 
@@ -186,13 +243,15 @@ class Player_Cadence:
     BODY_IMAGE_HEIGHT = 14
     HEAD_IMAGE_WIDTH = 24
     HEAD_IMAGE_HEIGHT = 12
+
+    HIT_TIMER = 50
     
     # 머리와 몸 간의 간격 차이
     HEAD_INTERVAL = BODY_IMAGE_HEIGHT * IMAGE_SCALE - 3 * IMAGE_SCALE
 
     def __init__(self):
         self.image = pico2d.load_image('resource\\Character_Player.png')
-        self.pivot = Point(600, 345)
+        self.pivot = Point(1000, 345)
         self.frame = {'x': 0, 'y': 0}
         self.rad = 0
         self.flip = ''
@@ -212,18 +271,25 @@ class Player_Cadence:
         self.curr_state = IdleState
         self.curr_state.enter_state(self, None)
 
+        # hit_damage
         self.curr_hp = 13
         self.max_hp = 16
 
+        self.check_get_damage = False
+        self.get_damage_timer = self.HIT_TIMER
+        self.get_damage_image = Camera.HitImage()
+
+        # money
         self.holding_gold = 0
         self.holding_diamond = 0
 
+        # attack
         self.equip_shovel = Shovel_Type['SHOVEL_TITANIUM']
         self.equip_weapon = Weapon_Type['WEAPON_DAGGER_BASIC']
+        self.equip_weapon_object = Dagger_Attack(self.pivot.x, self.pivot.y)
+
         self.equip_body = 0
         self.equip_head = 0
-
-        self.bg = None
 
     def init_jump(self, jump_dir=None):
         if self.check_jumping is False:
@@ -308,10 +374,14 @@ class Player_Cadence:
 
         pass
 
-    def set_background(self, bg):
-        self.bg = bg
-        self.pivot.x = self.bg.w // 2
-        self.pivot.y = self.bg.h // 2
+    def get_damage(self, damage):
+        if self.check_get_damage is False:
+            self.check_get_damage = True
+            self.curr_hp -= damage
+            self.get_damage_timer = self.HIT_TIMER
+            MainState.camera.shake_camera()
+            GameWorldManager.add_object(self.get_damage_image, MainState.LAYER_MESSAGE)
+        pass
 
     def add_event(self, event):
         self.event_que.insert(0, event)
@@ -335,6 +405,13 @@ class Player_Cadence:
 
         if self.check_jumping is True:
             self.jump()
+        if self.check_get_damage is True:
+            self.get_damage_timer -= 1
+            if self.get_damage_timer < 0:
+                self.get_damage_timer = 0
+                self.check_get_damage = False
+                GameWorldManager.remove_object(self.get_damage_image)
+
     pass
 
     def draw(self):

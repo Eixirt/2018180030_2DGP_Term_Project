@@ -8,7 +8,10 @@ import Camera
 import Player
 import Game_UI
 
+import Monster
 import Map_First_Stage
+
+import DeadEndState
 
 name = "MainState"
 
@@ -33,7 +36,19 @@ def check_collide(a, b):
 
 def call_object_in_rect(object_pivot_x, object_pivot_y):
     # left, bottom, right, top
-    rect = [(object_pivot_x // 50) * 50 - 25, (object_pivot_y // 50 + 1) * 50 - 25, (object_pivot_x // 50 + 1) * 50 - 25, (object_pivot_y // 50 + 2) * 50 - 25]
+    rect_constant_x = object_pivot_x % 50
+    rect_constant_y = object_pivot_y % 50
+    if rect_constant_x < 25:
+        object_pivot_x -= rect_constant_x
+    elif rect_constant_x > 25:
+        object_pivot_x += (50 - rect_constant_x)
+
+    if rect_constant_y < 25:
+        object_pivot_y -= rect_constant_y
+    elif rect_constant_y > 25:
+        object_pivot_y += (50 - rect_constant_y)
+
+    rect = [(object_pivot_x // 50) * 50 - 25, (object_pivot_y // 50) * 50 - 25, (object_pivot_x // 50 + 1) * 50 - 25, (object_pivot_y // 50 + 1) * 50 - 25]
     # print(str(rect[0]) + ", " + str(rect[1]) + ", " + str(rect[2]) + ", " + str(rect[3]))
     return rect
     pass
@@ -53,6 +68,8 @@ def check_collide_interaction(moving_object_pivot, fixed_object_pivot, move_dir)
     elif move_dir == 'DOWN':
         moving_object_rect = call_object_in_rect(moving_object_pivot.x, moving_object_pivot.y - 50)
         pass
+    elif move_dir == '':
+        moving_object_rect = call_object_in_rect(moving_object_pivot.x, moving_object_pivot.y)
 
     if (moving_object_rect[0] < fixed_object_pivot.x) and (fixed_object_pivot.x < moving_object_rect[2]) and \
             (moving_object_rect[1] < fixed_object_pivot.y) and (fixed_object_pivot.y < moving_object_rect[3]):
@@ -77,6 +94,15 @@ BlackBoard = {'player': {'x': None, 'y': None,
                          'equip_shovel': None, 'equip_weapon': None},
               'camera': {'camera_left': None, 'camera_bottom': None}}
 
+# layer 0: Background Objects
+# layer 1: Map Objects
+# layer 2: Monster Objects
+# layer 3: Player Objects
+# layer 4: Map-UnderWall Objects
+# layer 5: UI Objects
+# layer 6: Hit Image and Message
+LAYER_BACKGROUND, LAYER_MAP, LAYER_MONSTER, LAYER_PLAYER, LAYER_UNDER_WALL, LAYER_UI, LAYER_MESSAGE = range(7)
+
 
 def update_blackboard():
     global BlackBoard
@@ -98,24 +124,27 @@ def update_blackboard():
 
 # layer 0: Background Objects
 # layer 1: Map Objects
-# layer 2: Foreground Objects
-# layer 3: UI Objects
+# layer 2: Monster Objects
+# layer 3: Player Objects
+# layer 4: Map-UnderWall Objects
+# layer 5: UI Objects
+# layer 6: Hit Image and Message
 
 
 def enter_state():
     # 플레이어
     global player_cadence
     player_cadence = Player.Player_Cadence()
-    GameWorldManager.add_object(player_cadence, 2)
+    GameWorldManager.add_object(player_cadence, LAYER_PLAYER)
 
     # UI
     global ui_heart, ui_money, ui_equip
     ui_heart = Game_UI.UI_Player_Hp()
     ui_money = Game_UI.UI_Player_Money()
     ui_equip = Game_UI.UI_Player_Equip()
-    GameWorldManager.add_object(ui_heart, 3)
-    GameWorldManager.add_object(ui_money, 3)
-    GameWorldManager.add_object(ui_equip, 3)
+    GameWorldManager.add_object(ui_heart, LAYER_UI)
+    GameWorldManager.add_object(ui_money, LAYER_UI)
+    GameWorldManager.add_object(ui_equip, LAYER_UI)
 
     # 배경
     # global background
@@ -128,7 +157,7 @@ def enter_state():
     # 카메라
     global camera
     camera = Camera.Camera()
-    GameWorldManager.add_object(camera, 0)
+    GameWorldManager.add_object(camera, LAYER_BACKGROUND)
 
     camera.set_focus_object(player_cadence)
 
@@ -176,13 +205,23 @@ def update():
     for game_object, object_layer in GameWorldManager.all_objects():
         game_object.update()
 
+    curr_stage.update()
     update_blackboard()
+
+    # 플레이어 체력 0이면 탈출
+    if player_cadence.curr_hp == 0:
+        # GameFrameWork.change_state(DeadEndState)
+        pass
     # 충돌체크
     check_collide_player_and_wall()
+    check_collide_player_and_monster()
+    check_collide_player_attack_and_monster()
+    check_collide_monster_and_wall()
     pass
 
 
 def check_collide_player_and_wall():
+    # and player_cadence.check_moving_collide is False
     if player_cadence.check_jumping is True and player_cadence.check_moving_collide is False:
 
         if player_cadence.jump_dir == 'RIGHT':
@@ -228,17 +267,120 @@ def check_collide_player_and_wall():
         pass
     pass
 
+
+def check_collide_player_and_monster():
+    mob_pivot = None
+    if player_cadence.check_jumping is True:
+        if player_cadence.jump_dir == 'RIGHT':
+            for mob in curr_stage.monster_list:
+                if mob.type == Monster.Monster_Type['MONSTER_SLIME_GREEN']:
+                    mob_pivot = mob.start_pivot
+                elif mob.type == Monster.Monster_Type['MONSTER_BAT_BASIC']:
+                    mob_pivot = mob.pivot
+
+                if check_collide_interaction(player_cadence.start_point, mob_pivot, 'RIGHT'):
+                    player_cadence.check_jumping = False
+                    player_cadence.pivot = copy.copy(player_cadence.start_point)
+                    player_cadence.get_damage(mob.damage)
+                    break
+                pass
+            player_cadence.check_moving_collide = True
+            pass
+
+        elif player_cadence.jump_dir == 'LEFT':
+            for mob in curr_stage.monster_list:
+
+                if mob.type == Monster.Monster_Type['MONSTER_SLIME_GREEN']:
+                    mob_pivot = mob.start_pivot
+                elif mob.type == Monster.Monster_Type['MONSTER_BAT_BASIC']:
+                    mob_pivot = mob.pivot
+
+                if check_collide_interaction(player_cadence.start_point, mob_pivot, 'LEFT'):
+                    player_cadence.check_jumping = False
+                    player_cadence.pivot = copy.copy(player_cadence.start_point)
+                    player_cadence.get_damage(mob.damage)
+                    break
+                pass
+            player_cadence.check_moving_collide = True
+            pass
+
+        elif player_cadence.jump_dir == 'UP':
+            for mob in curr_stage.monster_list:
+
+                if mob.type == Monster.Monster_Type['MONSTER_SLIME_GREEN']:
+                    mob_pivot = mob.start_pivot
+                elif mob.type == Monster.Monster_Type['MONSTER_BAT_BASIC']:
+                    mob_pivot = mob.pivot
+
+                if check_collide_interaction(player_cadence.start_point, mob_pivot, 'UP'):
+                    player_cadence.check_jumping = False
+                    player_cadence.pivot = copy.copy(player_cadence.start_point)
+                    player_cadence.get_damage(mob.damage)
+                    break
+                pass
+            player_cadence.check_moving_collide = True
+            pass
+
+        elif player_cadence.jump_dir == 'DOWN':
+            for mob in curr_stage.monster_list:
+
+                if mob.type == Monster.Monster_Type['MONSTER_SLIME_GREEN']:
+                    mob_pivot = mob.start_pivot
+                elif mob.type == Monster.Monster_Type['MONSTER_BAT_BASIC']:
+                    mob_pivot = mob.pivot
+
+                if check_collide_interaction(player_cadence.start_point, mob_pivot, 'DOWN'):
+                    player_cadence.check_jumping = False
+                    player_cadence.pivot = copy.copy(player_cadence.start_point)
+                    player_cadence.get_damage(mob.damage)
+                    break
+                pass
+            player_cadence.check_moving_collide = True
+            pass
+    pass
+
+
+def check_collide_player_attack_and_monster():
+    player_attack = player_cadence.equip_weapon_object
+    mob_pivot = None
+    if player_attack.check_attack is True and player_attack.timer >= 0 and player_attack.check_possible_attack is True:
+        for mob in curr_stage.monster_list:
+            if mob.type == Monster.Monster_Type['MONSTER_SLIME_GREEN']:
+                mob_pivot = mob.start_pivot
+            elif mob.type == Monster.Monster_Type['MONSTER_BAT_BASIC']:
+                mob_pivot = mob.pivot
+
+            if check_collide_interaction(player_attack.pivot, mob_pivot, ''):
+                mob.curr_hp -= player_attack.damage
+                player_attack.check_possible_attack = False
+                break
+
+            pass
+        pass
+    pass
+
+
+def check_collide_monster_and_wall():
+    for mob in curr_stage.monster_list:
+        if mob.type == Monster.Monster_Type['MONSTER_BAT_BASIC']:
+            pass
+        pass
+    pass
+
 # layer 0: Background Objects
 # layer 1: Map Objects
-# layer 2: Foreground Objects
-# layer 3: UI Objects
+# layer 2: Monster Objects
+# layer 3: Player Objects
+# layer 4: Map-UnderWall Objects
+# layer 5: UI Objects
+# layer 6: Hit Image and Message
 
 
 def draw():
     global camera
     pico2d.clear_canvas()
     for game_object, object_layer in GameWorldManager.all_objects():
-        if object_layer == 0 or object_layer == 3:
+        if object_layer == LAYER_BACKGROUND or object_layer == LAYER_MESSAGE or object_layer == LAYER_UI:
             game_object.draw()
             pass
 
