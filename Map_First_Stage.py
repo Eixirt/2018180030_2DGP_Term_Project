@@ -39,7 +39,7 @@ class FirstStage:
     def __init__(self):
         self.block_list = []
         self.wall_list = []
-        self.monster_list = [Monster.Slime_Green(600, 350 + 10)]
+        self.monster_list = [Monster.Slime_Green(600, 350 + 10), Monster.Bat_Basic(700, 350 + 20)]
 
         self.init_map_objects()
 

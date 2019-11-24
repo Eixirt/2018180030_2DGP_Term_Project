@@ -100,8 +100,8 @@ class Slime_Green(Monster):
             self.pivot = Point(px, py)
             pass
 
-        self.max_hp = 6
-        self.curr_hp = 2
+        self.max_hp = 1
+        self.curr_hp = 1
 
         self.object_width = 26
         self.object_height = 25
@@ -163,5 +163,43 @@ class Skeleton_White(Monster):
 
 
 class Bat_Basic(Monster):
+    image = None
+
+    def __init__(self, px=None, py=None):
+        super().__init__()
+
+        if Bat_Basic.image is None:
+            Bat_Basic.image = pico2d.load_image('resource\\Monster_Bat.png')
+            pass
+
+        if px is None and py is None:
+            self.pivot = Point(0, 0)
+        else:
+            self.pivot = Point(px, py)
+            pass
+
+        self.max_hp = 1
+        self.curr_hp = 1
+
+        self.object_width = 24
+        self.object_height = 18
+
+        self.image_start_point = [Point(2, self.image.h - self.object_height), Point(23, self.image.h - self.object_height),
+                                  Point(48, self.image.h - self.object_height), Point(72, self.image.h - self.object_height),
+                                  Point(72, self.image.h - self.object_height), Point(72, self.image.h - self.object_height), Point(72, self.image.h - self.object_height)]
+        self.frame = 0
+        self.max_frame = 7
+
+        self.bt = None
+        self.build_behavior_tree()
+
+    def update(self):
+        self.frame = (self.frame + self.max_frame * ACTION_PER_TIME * GameFrameWork.frame_time) % self.max_frame
+        # self.bt.run()
+        pass
+
+    def build_behavior_tree(self):
+        pass
+
     pass
 

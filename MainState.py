@@ -1,6 +1,7 @@
 import pico2d
 import GameFrameWork
 import GameWorldManager
+import copy
 
 import Camera
 
@@ -27,6 +28,37 @@ def check_collide(a, b):
         return False
 
     return True
+    pass
+
+
+def call_object_in_rect(object_pivot_x, object_pivot_y):
+    # left, bottom, right, top
+    rect = [(object_pivot_x // 50) * 50 - 25, (object_pivot_y // 50 + 1) * 50 - 25, (object_pivot_x // 50 + 1) * 50 - 25, (object_pivot_y // 50 + 2) * 50 - 25]
+    # print(str(rect[0]) + ", " + str(rect[1]) + ", " + str(rect[2]) + ", " + str(rect[3]))
+    return rect
+    pass
+
+
+def check_collide_interaction(moving_object_pivot, fixed_object_pivot, move_dir):
+    moving_object_rect = []
+    if move_dir == 'LEFT':
+        moving_object_rect = call_object_in_rect(moving_object_pivot.x - 50, moving_object_pivot.y)
+        pass
+    elif move_dir == 'RIGHT':
+        moving_object_rect = call_object_in_rect(moving_object_pivot.x + 50, moving_object_pivot.y)
+        pass
+    elif move_dir == 'UP':
+        moving_object_rect = call_object_in_rect(moving_object_pivot.x, moving_object_pivot.y + 50)
+        pass
+    elif move_dir == 'DOWN':
+        moving_object_rect = call_object_in_rect(moving_object_pivot.x, moving_object_pivot.y - 50)
+        pass
+
+    if (moving_object_rect[0] < fixed_object_pivot.x) and (fixed_object_pivot.x < moving_object_rect[2]) and \
+            (moving_object_rect[1] < fixed_object_pivot.y) and (fixed_object_pivot.y < moving_object_rect[3]):
+        return True
+    else:
+        return False
     pass
 
 
@@ -146,7 +178,54 @@ def update():
 
     update_blackboard()
     # 충돌체크
+    check_collide_player_and_wall()
+    pass
 
+
+def check_collide_player_and_wall():
+    if player_cadence.check_jumping is True and player_cadence.check_moving_collide is False:
+
+        if player_cadence.jump_dir == 'RIGHT':
+            for wall in curr_stage.wall_list:
+                if check_collide_interaction(player_cadence.start_point, wall.pivot, 'RIGHT'):
+                    player_cadence.check_jumping = False
+                    player_cadence.pivot = copy.copy(player_cadence.start_point)
+                    break
+                pass
+            player_cadence.check_moving_collide = True
+            pass
+
+        elif player_cadence.jump_dir == 'LEFT':
+            for wall in curr_stage.wall_list:
+                if check_collide_interaction(player_cadence.start_point, wall.pivot, 'LEFT'):
+                    player_cadence.check_jumping = False
+                    player_cadence.pivot = copy.copy(player_cadence.start_point)
+                    break
+                pass
+            player_cadence.check_moving_collide = True
+            pass
+
+        elif player_cadence.jump_dir == 'UP':
+            for wall in curr_stage.wall_list:
+                if check_collide_interaction(player_cadence.start_point, wall.pivot, 'UP'):
+                    player_cadence.check_jumping = False
+                    player_cadence.pivot = copy.copy(player_cadence.start_point)
+                    break
+                pass
+            player_cadence.check_moving_collide = True
+            pass
+
+        elif player_cadence.jump_dir == 'DOWN':
+            for wall in curr_stage.wall_list:
+                if check_collide_interaction(player_cadence.start_point, wall.pivot, 'DOWN'):
+                    player_cadence.check_jumping = False
+                    player_cadence.pivot = copy.copy(player_cadence.start_point)
+                    break
+                pass
+            player_cadence.check_moving_collide = True
+            pass
+
+        pass
     pass
 
 # layer 0: Background Objects

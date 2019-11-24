@@ -109,5 +109,5 @@ class Wall:
         self.image.clip_draw(image_start_point.x, image_start_point.y,
                              self.WALL_IMAGE_WIDTH, self.WALL_IMAGE_HEIGHT,
                              camera_x, camera_y,
-                             (self.WALL_IMAGE_WIDTH + 1) * IMAGE_SCALE, (self.WALL_IMAGE_HEIGHT - 1) * IMAGE_SCALE)
+                             (self.WALL_IMAGE_WIDTH + 1) * IMAGE_SCALE, (self.WALL_IMAGE_HEIGHT) * IMAGE_SCALE)
         pass

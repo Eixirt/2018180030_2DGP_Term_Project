@@ -203,8 +203,9 @@ class Player_Cadence:
         self.start_point = self.pivot
         self.mid_point = self.pivot
         self.end_point = self.pivot
-        self.jump_dir = None
+        self.jump_dir = 'RIGHT'
         self.start_jumping_time = 0.0
+        self.check_moving_collide = False
 
         self.event_que = []
         self.init_state = IdleState
@@ -226,6 +227,7 @@ class Player_Cadence:
 
     def init_jump(self, jump_dir=None):
         if self.check_jumping is False:
+            self.check_moving_collide = False
             self.check_jumping = True
             self.start_point = copy.copy(self.pivot)
             self.mid_point = copy.copy(self.pivot)
