@@ -88,6 +88,7 @@ ui_equip = None
 
 curr_stage = None
 
+# 블랙보드 위치 수정 요망
 BlackBoard = {'player': {'x': None, 'y': None,
                          'curr_hp': None, 'max_hp': None,
                          'holding_gold': None, 'holding_diamond': None,
