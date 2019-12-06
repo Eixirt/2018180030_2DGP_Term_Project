@@ -1,17 +1,21 @@
 import pico2d
 import GameFrameWork
 import GameWorldManager
-import copy
+import MainState
 
 name = "StartState"
+image = None
 
 
 def enter_state():
+    global image
+    image = pico2d.load_image('resource/start_image.jpg')
     pass
 
 
 def exit_state():
-    GameWorldManager.clear()
+    global image
+    del image
     pass
 
 
@@ -31,6 +35,8 @@ def handle_events():
             GameFrameWork.quit_state()
         elif curr_event.type == pico2d.SDL_KEYDOWN and curr_event.key == pico2d.SDLK_ESCAPE:
             GameFrameWork.quit_state()
+        elif curr_event.type == pico2d.SDL_KEYDOWN and curr_event.key == pico2d.SDLK_KP_ENTER:
+            GameFrameWork.change_state(MainState)
     pass
 
 
@@ -42,10 +48,10 @@ def update():
 
 
 def draw():
+    global image
     pico2d.clear_canvas()
 
-    for game_object, object_layer in GameWorldManager.all_objects():
-        game_object.draw()
+    image.clip_draw(0, 0)
 
     pico2d.update_canvas()
     pass
