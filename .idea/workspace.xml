@@ -3,6 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="d5d234e0-713d-4e70-a4cd-8ffc1fca258b" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MainGame_NecroDancer.py" beforeDir="false" afterPath="$PROJECT_DIR$/MainGame_NecroDancer.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/StartState.py" beforeDir="false" afterPath="$PROJECT_DIR$/StartState.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -107,6 +108,27 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="StartState" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="2018180030_2DGP_Term_Project" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/StartState.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="character_jump" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="2018180030_2DGP_Term_Project" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -131,6 +153,7 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.MainGame_NecroDancer" />
+        <item itemvalue="Python.StartState" />
         <item itemvalue="Python.Map_Tool" />
         <item itemvalue="Python.Draw_Ui" />
         <item itemvalue="Python.character_jump" />

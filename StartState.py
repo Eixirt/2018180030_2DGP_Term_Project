@@ -35,7 +35,7 @@ def handle_events():
             GameFrameWork.quit_state()
         elif curr_event.type == pico2d.SDL_KEYDOWN and curr_event.key == pico2d.SDLK_ESCAPE:
             GameFrameWork.quit_state()
-        elif curr_event.type == pico2d.SDL_KEYDOWN and curr_event.key == pico2d.SDLK_KP_ENTER:
+        elif curr_event.type == pico2d.SDL_KEYDOWN and curr_event.key == pico2d.SDLK_RETURN:
             GameFrameWork.change_state(MainState)
     pass
 
@@ -51,7 +51,7 @@ def draw():
     global image
     pico2d.clear_canvas()
 
-    image.clip_draw(0, 0)
+    image.draw(pico2d.get_canvas_width()//2, pico2d.get_canvas_height()//2)
 
     pico2d.update_canvas()
     pass
