@@ -5,17 +5,32 @@ import MainState
 
 name = "StartState"
 image = None
+ready_font = None
+bgm = None
 
 
 def enter_state():
     global image
-    image = pico2d.load_image('resource/start_image.jpg')
+    global ready_font
+    global bgm
+
+    image = pico2d.load_image('resource\\start_image.jpg')
+    ready_font = pico2d.load_font('resource\\NecroSans.ttf', 20)
+    bgm = pico2d.load_music('resource\\sound\\start_bgm.mp3')
+
+    bgm.set_volume(100)
+    bgm.repeat_play()
     pass
 
 
 def exit_state():
     global image
+    global ready_font
+    global bgm
+
     del image
+    del ready_font
+    del bgm
     pass
 
 
@@ -52,6 +67,9 @@ def draw():
     pico2d.clear_canvas()
 
     image.draw(pico2d.get_canvas_width()//2, pico2d.get_canvas_height()//2)
+    ready_font.draw(pico2d.get_canvas_width()//2, pico2d.get_canvas_height()//2, str("Press Enter"))
+
+    print(bgm.get_volume())
 
     pico2d.update_canvas()
     pass
