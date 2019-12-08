@@ -32,15 +32,18 @@ class Monster:
     HP_OBJECT_WIDTH = 12
     HP_OBJECT_HEIGHT = 11
     HP_AND_MOB_INTERVAL = 3
+    shadow_image = None
 
     def __init__(self):
         if Monster.hp_image is None:
             Monster.hp_image = pico2d.load_image('resource\\UI.png')
+            Monster.shadow_image = pico2d.load_image('resource\\black_background.png')
         self.full_hp_image_start_point = Point(227, Monster.hp_image.h - 40)
         self.empty_hp_image_start_point = Point(241, Monster.hp_image.h - 40)
 
         self.pivot = Point(0, 0)
         self.start_pivot = Point(0, 0)
+        self.alpha_value = 1.0
 
         self.type = None
         self.curr_hp = None
@@ -69,6 +72,12 @@ class Monster:
                              camera_x, camera_y,
                              (self.object_width - 1) * IMAGE_SCALE, (self.object_height - 1) * IMAGE_SCALE)
 
+        self.shadow_image.opacify(self.alpha_value)
+        self.shadow_image.clip_draw(300, 300,
+                             self.object_width, self.object_height,
+                             camera_x, camera_y,
+                             (self.object_width - 1) * IMAGE_SCALE, (self.object_height - 1) * IMAGE_SCALE)
+
         # 하트 그리기
         for i in range(0, self.max_hp):
             # 꽉 찬 하트
@@ -86,11 +95,20 @@ class Monster:
                                         Monster.HP_OBJECT_WIDTH * IMAGE_SCALE, Monster.HP_OBJECT_HEIGHT * IMAGE_SCALE)
                 pass
 
+            self.shadow_image.opacify(self.alpha_value)
+            self.shadow_image.clip_draw(300, 300,
+                                    Monster.HP_OBJECT_WIDTH, Monster.HP_OBJECT_HEIGHT,
+                                    camera_x + (i + 0.5 - self.max_hp / 2) * (Monster.HP_OBJECT_WIDTH * IMAGE_SCALE),
+                                    camera_y + (self.object_height / 2 + Monster.HP_AND_MOB_INTERVAL) * IMAGE_SCALE,
+                                    Monster.HP_OBJECT_WIDTH * IMAGE_SCALE, Monster.HP_OBJECT_HEIGHT * IMAGE_SCALE)
         pass
 
 
 class Slime_Green(Monster):
     image = None
+
+    death_sound = None
+    hit_sound = None
 
     def __init__(self, px=None, py=None):
         super().__init__()
@@ -98,6 +116,12 @@ class Slime_Green(Monster):
         if Slime_Green.image is None:
             Slime_Green.image = pico2d.load_image('resource\\Monster_Slime.png')
             pass
+
+        if Slime_Green.hit_sound is None:
+            Slime_Green.hit_sound = pico2d.load_wav('resource\\sound\\mob_sound\\en_slime_hit.wav')
+            Slime_Green.death_sound = pico2d.load_wav('resource\\sound\\mob_sound\\en_slime_death.wav')
+            Slime_Green.hit_sound.set_volume(100)
+            Slime_Green.death_sound.set_volume(100)
 
         if px is None and py is None:
             self.pivot = Point(0, 0)
@@ -172,9 +196,13 @@ class Skeleton_White(Monster):
 class Bat_Basic(Monster):
     image = None
     MOVE_TIMER = 25
+    death_sound = None
 
     def __init__(self, px=None, py=None):
         super().__init__()
+        if Bat_Basic.death_sound is None:
+            Bat_Basic.death_sound = pico2d.load_wav('resource\\sound\\mob_sound\\en_bat_death.wav')
+            Bat_Basic.death_sound.set_volume(100)
 
         if Bat_Basic.image is None:
             Bat_Basic.image = pico2d.load_image('resource\\Monster_Bat.png')

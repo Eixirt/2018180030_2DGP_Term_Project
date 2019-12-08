@@ -45,8 +45,19 @@ class Dagger_Attack:
 
         self.damage = 1
 
+        self.attack_sound = []
+        for i in range(4):
+            attack_sfx = pico2d.load_wav('resource\\sound\\attack_sound\\vo_cad_melee_1_0' + str(i + 1) + '.wav')
+            attack_sfx.set_volume(100)
+            self.attack_sound.append(attack_sfx)
+            pass
+
     def init_attack(self, key):
         if self.check_attack is False:
+
+            random_sound_idx = random.randint(0, 3)
+            self.attack_sound[random_sound_idx].play()
+
             self.check_attack = True
             self.check_possible_attack = True
             self.pivot = Point(MainState.BlackBoard['player']['x'], MainState.BlackBoard['player']['y'])
@@ -302,6 +313,9 @@ class Player_Cadence:
             bgm.set_volume(90)
             self.hit_voice.append(bgm)
             pass
+
+        # view
+        self.view_range = 2
 
     def init_jump(self, jump_dir=None):
         if self.check_jumping is False:

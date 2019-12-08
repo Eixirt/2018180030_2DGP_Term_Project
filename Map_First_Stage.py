@@ -101,6 +101,7 @@ class FirstStage:
     def update(self):
         for monster_object in self.monster_list:
             if monster_object.curr_hp <= 0:
+                monster_object.death_sound.play()
                 self.monster_list.remove(monster_object)
                 GameWorldManager.remove_object(monster_object)
                 MainState.player_cadence.holding_gold += 10
