@@ -61,6 +61,10 @@ class FirstStage:
             GameWorldManager.add_object(wall_object, MainState.LAYER_MAP)
         for monster_object in self.monster_list:
             GameWorldManager.add_object(monster_object, MainState.LAYER_MONSTER)
+
+        self.stage1_bgm = pico2d.load_wav('resource\\sound\\stage1_bgm.wav')
+        self.stage1_bgm.set_volume(35)
+        self.stage1_bgm.repeat_play()
         pass
 
     def init_map_objects(self):
@@ -100,6 +104,9 @@ class FirstStage:
                 self.monster_list.remove(monster_object)
                 GameWorldManager.remove_object(monster_object)
                 MainState.player_cadence.holding_gold += 10
+
+        if MainState.player_cadence.curr_hp <= 0:
+            self.stage1_bgm.set_volume(20)
         pass
 
     def draw(self):

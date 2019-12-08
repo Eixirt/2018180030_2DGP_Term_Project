@@ -1,6 +1,7 @@
 import pico2d
 import ctypes
 import random
+import MainState
 import GameWorldManager
 
 
@@ -50,6 +51,8 @@ class Camera:
 
     def set_focus_object(self, player_object):
         self.focus_object = player_object
+        if self.focus_object is None:
+            self.focus_object = None
         pass
 
     def check_object_in_camera(self, object_pivot_x, object_pivot_y):
@@ -70,17 +73,29 @@ class Camera:
         pass
 
     def update(self):
-        self.window_left = self.focus_object.pivot.x - self.canvas_width // 2
-        self.window_bottom = self.focus_object.pivot.y - self.canvas_height // 2
+        if self.focus_object is not None:
+            self.window_left = self.focus_object.pivot.x - self.canvas_width // 2
+            self.window_bottom = self.focus_object.pivot.y - self.canvas_height // 2
+        else:
+            self.window_left = MainState.BlackBoard['player']['x'] - self.canvas_width // 2
+            self.window_bottom = MainState.BlackBoard['player']['y'] - self.canvas_height // 2
 
         if self.check_shaking_camera is True:
             self.shaking_timer -= 1
             self.window_left += random.randrange(-20, 20)
             self.window_bottom += random.randrange(-10, 10)
+
             if self.shaking_timer < 0:
                 self.check_shaking_camera = 0
-                self.window_left = self.focus_object.pivot.x - self.canvas_width // 2
-                self.window_bottom = self.focus_object.pivot.y - self.canvas_height // 2
+
+                if self.focus_object is not None:
+                    self.window_left = self.focus_object.pivot.x - self.canvas_width // 2
+                    self.window_bottom = self.focus_object.pivot.y - self.canvas_height // 2
+                else:
+                    self.window_left = MainState.BlackBoard['player']['x'] - self.canvas_width // 2
+                    self.window_bottom = MainState.BlackBoard['player']['y'] - self.canvas_height // 2
+                    pass
+
                 self.check_shaking_camera = False
             pass
         pass

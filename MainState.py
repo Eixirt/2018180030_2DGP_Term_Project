@@ -104,20 +104,23 @@ BlackBoard = {'player': {'x': None, 'y': None,
 # layer 6: Hit Image and Message
 LAYER_BACKGROUND, LAYER_MAP, LAYER_MONSTER, LAYER_PLAYER, LAYER_UNDER_WALL, LAYER_UI, LAYER_MESSAGE = range(7)
 
+# sound
+
 
 def update_blackboard():
     global BlackBoard
     global player_cadence
     global camera
 
-    BlackBoard['player']['x'] = player_cadence.pivot.x
-    BlackBoard['player']['y'] = player_cadence.pivot.y
-    BlackBoard['player']['curr_hp'] = player_cadence.curr_hp
-    BlackBoard['player']['max_hp'] = player_cadence.max_hp
-    BlackBoard['player']['holding_gold'] = player_cadence.holding_gold
-    BlackBoard['player']['holding_diamond'] = player_cadence.holding_diamond
-    BlackBoard['player']['equip_shovel'] = player_cadence.equip_shovel
-    BlackBoard['player']['equip_weapon'] = player_cadence.equip_weapon
+    if player_cadence is not None:
+        BlackBoard['player']['x'] = player_cadence.pivot.x
+        BlackBoard['player']['y'] = player_cadence.pivot.y
+        BlackBoard['player']['curr_hp'] = player_cadence.curr_hp
+        BlackBoard['player']['max_hp'] = player_cadence.max_hp
+        BlackBoard['player']['holding_gold'] = player_cadence.holding_gold
+        BlackBoard['player']['holding_diamond'] = player_cadence.holding_diamond
+        BlackBoard['player']['equip_shovel'] = player_cadence.equip_shovel
+        BlackBoard['player']['equip_weapon'] = player_cadence.equip_weapon
 
     BlackBoard['camera']['camera_left'] = camera.window_left
     BlackBoard['camera']['camera_bottom'] = camera.window_bottom
@@ -132,7 +135,15 @@ def update_blackboard():
 # layer 6: Hit Image and Message
 
 
+fade_timer = 1.0
+fade_image = None
+
+
 def enter_state():
+    global fade_image
+    # fade image
+    fade_image = pico2d.load_image('resource\\black_background.png')
+
     # 플레이어
     global player_cadence
     player_cadence = Player.Player_Cadence()
@@ -180,6 +191,11 @@ def exit_state():
 
 
 def pause_state():
+    global player_cadence
+    global camera
+    update_blackboard()
+    camera.set_focus_object(None)
+    GameWorldManager.remove_object(player_cadence)
     pass
 
 
@@ -195,6 +211,7 @@ def handle_events():
             GameFrameWork.quit_state()
         elif curr_event.type == pico2d.SDL_KEYDOWN and curr_event.key == pico2d.SDLK_ESCAPE:
             GameFrameWork.quit_state()
+            pass
         else:
             player_cadence.handle_event(curr_event)
 
@@ -203,16 +220,19 @@ def handle_events():
 
 
 def update():
+    global fade_timer
+
+    if fade_timer > 0.0:
+        fade_timer -= GameFrameWork.frame_time * 1.2
+        if fade_timer < 0.0:
+            fade_timer = 0.0
+
     for game_object, object_layer in GameWorldManager.all_objects():
         game_object.update()
 
     curr_stage.update()
     update_blackboard()
 
-    # 플레이어 체력 0이면 탈출
-    if player_cadence.curr_hp == 0:
-        # GameFrameWork.change_state(DeadEndState)
-        pass
     # 충돌체크
     check_collide_player_and_wall()
     check_collide_player_and_monster()
@@ -388,6 +408,9 @@ def draw():
         else:
             if camera.check_object_in_camera(game_object.pivot.x, game_object.pivot.y):
                 game_object.draw()
+
+    fade_image.opacify(fade_timer)
+    fade_image.clip_draw(0, 0, pico2d.get_canvas_width(), pico2d.get_canvas_height(), 0, 0, pico2d.get_canvas_width() * 3, pico2d.get_canvas_height() * 3)
 
     pico2d.update_canvas()
     pass
