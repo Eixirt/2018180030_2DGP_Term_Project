@@ -2,9 +2,11 @@ import pico2d
 import ctypes
 import math
 import copy
+import random
 
 import GameFrameWork
 import MainState
+import DeadEndState
 import GameWorldManager
 import Camera
 
@@ -43,8 +45,19 @@ class Dagger_Attack:
 
         self.damage = 1
 
+        self.attack_sound = []
+        for i in range(4):
+            attack_sfx = pico2d.load_wav('resource\\sound\\attack_sound\\vo_cad_melee_1_0' + str(i + 1) + '.wav')
+            attack_sfx.set_volume(100)
+            self.attack_sound.append(attack_sfx)
+            pass
+
     def init_attack(self, key):
         if self.check_attack is False:
+
+            random_sound_idx = random.randint(0, 3)
+            self.attack_sound[random_sound_idx].play()
+
             self.check_attack = True
             self.check_possible_attack = True
             self.pivot = Point(MainState.BlackBoard['player']['x'], MainState.BlackBoard['player']['y'])
@@ -272,7 +285,7 @@ class Player_Cadence:
         self.curr_state.enter_state(self, None)
 
         # hit_damage
-        self.curr_hp = 13
+        self.curr_hp = 3
         self.max_hp = 16
 
         self.check_get_damage = False
@@ -290,6 +303,19 @@ class Player_Cadence:
 
         self.equip_body = 0
         self.equip_head = 0
+
+        # sound
+        self.hit_voice = []
+        self.hit_bgm = pico2d.load_wav('resource\\sound\\hit_sound\\sfx_player_hit_ST.wav')
+        self.hit_bgm.set_volume(100)
+        for i in range(6):
+            bgm = pico2d.load_wav('resource\\sound\\hit_sound\\vo_cad_hurt_0' + str(i+1) + '.wav')
+            bgm.set_volume(90)
+            self.hit_voice.append(bgm)
+            pass
+
+        # view
+        self.view_range = 2
 
     def init_jump(self, jump_dir=None):
         if self.check_jumping is False:
@@ -378,9 +404,17 @@ class Player_Cadence:
         if self.check_get_damage is False:
             self.check_get_damage = True
             self.curr_hp -= damage
-            self.get_damage_timer = self.HIT_TIMER
-            MainState.camera.shake_camera()
-            GameWorldManager.add_object(self.get_damage_image, MainState.LAYER_MESSAGE)
+            if self.curr_hp <= 0:
+                GameFrameWork.push_state(DeadEndState)
+                pass
+            else:
+                self.get_damage_timer = self.HIT_TIMER
+                MainState.camera.shake_camera()
+                GameWorldManager.add_object(self.get_damage_image, MainState.LAYER_MESSAGE)
+
+                ran_val = random.randrange(0, 5 + 1)
+                self.hit_voice[ran_val].play()
+                self.hit_bgm.play()
         pass
 
     def add_event(self, event):
@@ -415,7 +449,8 @@ class Player_Cadence:
     pass
 
     def draw(self):
-        self.curr_state.draw(self)
+        if self.curr_hp > 0:
+            self.curr_state.draw(self)
         pass
     pass
 

@@ -259,7 +259,7 @@ def handle_events():
         elif event.type == pico2d.SDL_KEYDOWN:
             if event.key == pico2d.SDLK_ESCAPE:
                 running = False
-                #카메라 움직임
+                # 카메라 움직임
             elif event.key == pico2d.SDLK_w:
                 canvas_camera.move('w')
 

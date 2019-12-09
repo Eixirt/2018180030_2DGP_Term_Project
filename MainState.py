@@ -85,6 +85,7 @@ player_cadence = None
 ui_heart = None
 ui_money = None
 ui_equip = None
+ui_heartbeat = None
 
 curr_stage = None
 
@@ -104,20 +105,23 @@ BlackBoard = {'player': {'x': None, 'y': None,
 # layer 6: Hit Image and Message
 LAYER_BACKGROUND, LAYER_MAP, LAYER_MONSTER, LAYER_PLAYER, LAYER_UNDER_WALL, LAYER_UI, LAYER_MESSAGE = range(7)
 
+# sound
+
 
 def update_blackboard():
     global BlackBoard
     global player_cadence
     global camera
 
-    BlackBoard['player']['x'] = player_cadence.pivot.x
-    BlackBoard['player']['y'] = player_cadence.pivot.y
-    BlackBoard['player']['curr_hp'] = player_cadence.curr_hp
-    BlackBoard['player']['max_hp'] = player_cadence.max_hp
-    BlackBoard['player']['holding_gold'] = player_cadence.holding_gold
-    BlackBoard['player']['holding_diamond'] = player_cadence.holding_diamond
-    BlackBoard['player']['equip_shovel'] = player_cadence.equip_shovel
-    BlackBoard['player']['equip_weapon'] = player_cadence.equip_weapon
+    if player_cadence is not None:
+        BlackBoard['player']['x'] = player_cadence.pivot.x
+        BlackBoard['player']['y'] = player_cadence.pivot.y
+        BlackBoard['player']['curr_hp'] = player_cadence.curr_hp
+        BlackBoard['player']['max_hp'] = player_cadence.max_hp
+        BlackBoard['player']['holding_gold'] = player_cadence.holding_gold
+        BlackBoard['player']['holding_diamond'] = player_cadence.holding_diamond
+        BlackBoard['player']['equip_shovel'] = player_cadence.equip_shovel
+        BlackBoard['player']['equip_weapon'] = player_cadence.equip_weapon
 
     BlackBoard['camera']['camera_left'] = camera.window_left
     BlackBoard['camera']['camera_bottom'] = camera.window_bottom
@@ -132,20 +136,30 @@ def update_blackboard():
 # layer 6: Hit Image and Message
 
 
+fade_timer = 1.0
+fade_image = None
+
+
 def enter_state():
+    global fade_image
+    # fade image
+    fade_image = pico2d.load_image('resource\\black_background.png')
+
     # 플레이어
     global player_cadence
     player_cadence = Player.Player_Cadence()
     GameWorldManager.add_object(player_cadence, LAYER_PLAYER)
 
     # UI
-    global ui_heart, ui_money, ui_equip
+    global ui_heart, ui_money, ui_equip, ui_heartbeat
     ui_heart = Game_UI.UI_Player_Hp()
     ui_money = Game_UI.UI_Player_Money()
     ui_equip = Game_UI.UI_Player_Equip()
+    ui_heartbeat = Game_UI.UI_HEARTBEAT()
     GameWorldManager.add_object(ui_heart, LAYER_UI)
     GameWorldManager.add_object(ui_money, LAYER_UI)
     GameWorldManager.add_object(ui_equip, LAYER_UI)
+    GameWorldManager.add_object(ui_heartbeat, LAYER_UI)
 
     # 배경
     # global background
@@ -180,6 +194,11 @@ def exit_state():
 
 
 def pause_state():
+    global player_cadence
+    global camera
+    update_blackboard()
+    camera.set_focus_object(None)
+    GameWorldManager.remove_object(player_cadence)
     pass
 
 
@@ -195,6 +214,7 @@ def handle_events():
             GameFrameWork.quit_state()
         elif curr_event.type == pico2d.SDL_KEYDOWN and curr_event.key == pico2d.SDLK_ESCAPE:
             GameFrameWork.quit_state()
+            pass
         else:
             player_cadence.handle_event(curr_event)
 
@@ -203,16 +223,19 @@ def handle_events():
 
 
 def update():
+    global fade_timer
+
+    if fade_timer > 0.0:
+        fade_timer -= GameFrameWork.frame_time * 1.2
+        if fade_timer < 0.0:
+            fade_timer = 0.0
+
     for game_object, object_layer in GameWorldManager.all_objects():
         game_object.update()
 
     curr_stage.update()
     update_blackboard()
 
-    # 플레이어 체력 0이면 탈출
-    if player_cadence.curr_hp == 0:
-        # GameFrameWork.change_state(DeadEndState)
-        pass
     # 충돌체크
     check_collide_player_and_wall()
     check_collide_player_and_monster()
@@ -353,6 +376,8 @@ def check_collide_player_attack_and_monster():
 
             if check_collide_interaction(player_attack.pivot, mob_pivot, ''):
                 mob.curr_hp -= player_attack.damage
+                if mob.curr_hp > 0:
+                    mob.hit_sound.play()
                 player_attack.check_possible_attack = False
                 break
 
@@ -379,6 +404,7 @@ def check_collide_monster_and_wall():
 
 def draw():
     global camera
+
     pico2d.clear_canvas()
     for game_object, object_layer in GameWorldManager.all_objects():
         if object_layer == LAYER_BACKGROUND or object_layer == LAYER_MESSAGE or object_layer == LAYER_UI:
@@ -387,8 +413,52 @@ def draw():
 
         else:
             if camera.check_object_in_camera(game_object.pivot.x, game_object.pivot.y):
-                game_object.draw()
+                view_val = check_object_view(game_object.pivot.x, game_object.pivot.y)
+                if view_val == 0:
+                    game_object.alpha_value = 0.0
+                    game_object.draw()
+                    pass
+                elif view_val == 1:
+                    game_object.alpha_value = 0.3
+                    game_object.draw()
+                    pass
+                elif view_val == 2:
+                    game_object.alpha_value = 0.8
+                    game_object.draw()
+                else:
+                    game_object.alpha_value = 1.0
+                    pass
+
+    fade_image.opacify(fade_timer)
+    fade_image.clip_draw(0, 0, pico2d.get_canvas_width(), pico2d.get_canvas_height(), 0, 0, pico2d.get_canvas_width() * 3, pico2d.get_canvas_height() * 3)
 
     pico2d.update_canvas()
+    pass
+
+
+def check_object_view(object_pivot_x, object_pivot_y):
+    global player_cadence
+
+    obj_range_x = (player_cadence.pivot.x - object_pivot_x)
+    obj_range_y = (player_cadence.pivot.y - object_pivot_y)
+
+    obj_range_pow = obj_range_x * obj_range_x + obj_range_y * obj_range_y
+
+    RANGE_SIZE = 30
+
+    view_range = (player_cadence.view_range * RANGE_SIZE) * (player_cadence.view_range * RANGE_SIZE)
+
+    if obj_range_pow < view_range:
+        return 0
+
+    view_range = ((player_cadence.view_range + 1) * RANGE_SIZE) * ((player_cadence.view_range + 1) * RANGE_SIZE)
+    if obj_range_pow < view_range:
+        return 1
+
+    view_range = ((player_cadence.view_range + 2) * RANGE_SIZE) * ((player_cadence.view_range + 2) * RANGE_SIZE)
+    if obj_range_pow < view_range:
+        return 2
+
+    return 3
     pass
 

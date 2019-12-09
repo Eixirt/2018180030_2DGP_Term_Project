@@ -189,6 +189,45 @@ class UI_Player_Equip:
         pass
 
 
+class UI_HEARTBEAT:
+    FRAME1_IMAGE_WIDTH = 34
+    FRAME1_IMAGE_HEIGHT = 50
 
+    FRAME2_IMAGE_WIDTH = 40
+    FRAME2_IMAGE_HEIGHT = 50
 
+    HEART_PUMP_TIMER = 0.55
+    HEART_DUMP_TIMER = 0.6
+
+    def __init__(self):
+        self.image = pico2d.load_image('resource\\UI.png')
+        self.pivot = Point(pico2d.get_canvas_width() // 2, pico2d.get_canvas_height() // 8)
+        self.frame = 0
+
+        self.timer = 0.0
+
+    def update(self):
+        self.timer += GameFrameWork.frame_time
+        if self.timer >= self.HEART_DUMP_TIMER:
+            self.timer -= self.HEART_DUMP_TIMER
+            self.frame = 0
+        elif self.timer >= self.HEART_PUMP_TIMER:
+            self.frame = 1
+        pass
+
+    def draw(self):
+        frame1_start_point = Point(117, self.image.h - self.FRAME1_IMAGE_HEIGHT)
+        frame2_start_point = Point(155, self.image.h - self.FRAME2_IMAGE_HEIGHT)
+
+        if self.frame == 0:
+            self.image.clip_draw(frame1_start_point.x, frame1_start_point.y,
+                                 self.FRAME1_IMAGE_WIDTH, self.FRAME1_IMAGE_HEIGHT,
+                                 self.pivot.x, self.pivot.y,
+                                 self.FRAME1_IMAGE_WIDTH * IMAGE_SCALE, self.FRAME1_IMAGE_HEIGHT * IMAGE_SCALE)
+        else:
+            self.image.clip_draw(frame2_start_point.x, frame2_start_point.y,
+                                 self.FRAME2_IMAGE_WIDTH, self.FRAME2_IMAGE_HEIGHT,
+                                 self.pivot.x, self.pivot.y,
+                                 self.FRAME2_IMAGE_WIDTH * IMAGE_SCALE, self.FRAME2_IMAGE_HEIGHT * IMAGE_SCALE)
+        pass
 

@@ -27,12 +27,16 @@ IMAGE_SCALE = 2
 
 class Block:
     image = None
+    shadow_image = None
     BLOCK_IMAGE_WIDTH = 26
     BLOCK_IMAGE_HEIGHT = 26
 
     def __init__(self, selected_block=None, px=None, py=None):
         if Block.image is None:
             Block.image = pico2d.load_image('resource\\Block_Floors.png')
+            Block.shadow_image = pico2d.load_image('resource\\black_background.png')
+        self.alpha_value = 1.0
+
         if px is None and py is None:
             self.pivot = Point(500, 500)
         else:
@@ -61,17 +65,27 @@ class Block:
                              self.BLOCK_IMAGE_WIDTH, self.BLOCK_IMAGE_HEIGHT,
                              camera_x, camera_y,
                              (self.BLOCK_IMAGE_WIDTH - 1) * IMAGE_SCALE, (self.BLOCK_IMAGE_HEIGHT - 1) * IMAGE_SCALE)
+
+        self.shadow_image.opacify(self.alpha_value)
+        self.shadow_image.clip_draw(300, 300,
+                                    self.BLOCK_IMAGE_WIDTH, self.BLOCK_IMAGE_HEIGHT,
+                                    camera_x, camera_y,
+                                    (self.BLOCK_IMAGE_WIDTH - 1) * IMAGE_SCALE, (self.BLOCK_IMAGE_HEIGHT - 1) * IMAGE_SCALE)
         pass
 
 
 class Wall:
     image = None
+    shadow_image = None
     WALL_IMAGE_WIDTH = 24
     WALL_IMAGE_HEIGHT = 40
 
     def __init__(self, selected_wall=None, px=None, py=None):
         if Wall.image is None:
             Wall.image = pico2d.load_image('resource\\Block_Walls.png')
+            Wall.shadow_image = pico2d.load_image('resource\\black_background.png')
+        self.alpha_value = 1.0
+
         if px is None and py is None:
             self.pivot = Point(400, 500)
         else:
@@ -110,4 +124,11 @@ class Wall:
                              self.WALL_IMAGE_WIDTH, self.WALL_IMAGE_HEIGHT,
                              camera_x, camera_y,
                              (self.WALL_IMAGE_WIDTH + 1) * IMAGE_SCALE, (self.WALL_IMAGE_HEIGHT) * IMAGE_SCALE)
+
+        self.shadow_image.opacify(self.alpha_value)
+        self.shadow_image.clip_draw(300, 300,
+                                    self.WALL_IMAGE_WIDTH, self.WALL_IMAGE_HEIGHT,
+                                    camera_x, camera_y,
+                                    (self.WALL_IMAGE_WIDTH + 1) * IMAGE_SCALE, (self.WALL_IMAGE_HEIGHT) * IMAGE_SCALE)
         pass
+
