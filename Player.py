@@ -104,7 +104,7 @@ class Dagger_Attack:
 
 
 RIGHT_KEY_DOWN, LEFT_KEY_DOWN, UP_KEY_DOWN, DOWN_KEY_DOWN, RIGHT_KEY_UP, LEFT_KEY_UP, UP_KEY_UP, DOWN_KEY_UP, \
- W_KEY_DOWN, A_KEY_DOWN, S_KEY_DOWN, D_KEY_DOWN, W_KEY_UP, A_KEY_UP, S_KEY_UP, D_KEY_UP = range(16)
+ W_KEY_DOWN, A_KEY_DOWN, S_KEY_DOWN, D_KEY_DOWN, W_KEY_UP, A_KEY_UP, S_KEY_UP, D_KEY_UP, PAGEUP_KEY_DOWN, PAGEDOWN_KEY_DOWN = range(18)
 
 Shovel_Type_Keys = ['SHOVEL_NULL', 'SHOVEL_BASIC', 'SHOVEL_TITANIUM', 'SHOVEL_GLASS', 'SHOVEL_OBSIDIAN']
 Shovel_Type_Values = list(range(-1, 5 - 1))
@@ -131,7 +131,10 @@ key_event_table = {
     (pico2d.SDL_KEYUP, pico2d.SDLK_w): W_KEY_UP,
     (pico2d.SDL_KEYUP, pico2d.SDLK_a): A_KEY_UP,
     (pico2d.SDL_KEYUP, pico2d.SDLK_s): S_KEY_UP,
-    (pico2d.SDL_KEYUP, pico2d.SDLK_d): D_KEY_UP
+    (pico2d.SDL_KEYUP, pico2d.SDLK_d): D_KEY_UP,
+
+    (pico2d.SDL_KEYDOWN, pico2d.SDLK_PAGEUP): PAGEUP_KEY_DOWN,
+    (pico2d.SDL_KEYDOWN, pico2d.SDLK_PAGEDOWN): PAGEDOWN_KEY_DOWN
 }
 
 IMAGE_SCALE = 2
@@ -168,7 +171,14 @@ class IdleState:
                 # player.flip = ''
                 pass
 
-        # 공격
+        # 시야 치트
+        if event == PAGEDOWN_KEY_DOWN:
+            if player.view_range > 1:
+                player.view_range -= 1
+            pass
+        elif event == PAGEUP_KEY_DOWN:
+            player.view_range += 1
+            pass
 
         pass
 
@@ -247,7 +257,8 @@ next_state_table = {
     IdleState: {W_KEY_DOWN: IdleState, A_KEY_DOWN: IdleState, S_KEY_DOWN: IdleState, D_KEY_DOWN: IdleState,
                 W_KEY_UP: IdleState, A_KEY_UP: IdleState, S_KEY_UP: IdleState, D_KEY_UP: IdleState,
                 UP_KEY_DOWN: IdleState, DOWN_KEY_DOWN: IdleState, LEFT_KEY_DOWN: IdleState, RIGHT_KEY_DOWN: IdleState,
-                UP_KEY_UP: IdleState, DOWN_KEY_UP: IdleState, LEFT_KEY_UP: IdleState, RIGHT_KEY_UP: IdleState}
+                UP_KEY_UP: IdleState, DOWN_KEY_UP: IdleState, LEFT_KEY_UP: IdleState, RIGHT_KEY_UP: IdleState,
+                PAGEUP_KEY_DOWN: IdleState, PAGEDOWN_KEY_DOWN: IdleState}
 }
 
 
@@ -285,8 +296,8 @@ class Player_Cadence:
         self.curr_state.enter_state(self, None)
 
         # hit_damage
-        self.curr_hp = 3
-        self.max_hp = 16
+        self.curr_hp = 12
+        self.max_hp = 12
 
         self.check_get_damage = False
         self.get_damage_timer = self.HIT_TIMER
@@ -426,6 +437,10 @@ class Player_Cadence:
             key_event = key_event_table[(event.type, event.key)]
             self.add_event(key_event)
             pass
+        elif event.type == pico2d.SDL_KEYDOWN and event.key == pico2d.SDLK_HOME:
+            print(self.pivot.x)
+            print(self.pivot.y)
+            print('===========')
         pass
 
     def update(self):

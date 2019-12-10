@@ -2,16 +2,15 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="d5d234e0-713d-4e70-a4cd-8ffc1fca258b" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/Dropped_Item.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/dictionaries/leeg9.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ClearState.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/BlockSet.py" beforeDir="false" afterPath="$PROJECT_DIR$/BlockSet.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Game_UI.py" beforeDir="false" afterPath="$PROJECT_DIR$/Game_UI.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Dropped_Item.py" beforeDir="false" afterPath="$PROJECT_DIR$/Dropped_Item.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GameWorldManager.py" beforeDir="false" afterPath="$PROJECT_DIR$/GameWorldManager.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MainState.py" beforeDir="false" afterPath="$PROJECT_DIR$/MainState.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Map_First_Stage.py" beforeDir="false" afterPath="$PROJECT_DIR$/Map_First_Stage.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Map_Tool.py" beforeDir="false" afterPath="$PROJECT_DIR$/Map_Tool.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Player.py" beforeDir="false" afterPath="$PROJECT_DIR$/Player.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TimingManager.py" beforeDir="false" afterPath="$PROJECT_DIR$/TimingManager.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/monster.py" beforeDir="false" afterPath="$PROJECT_DIR$/monster.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -31,6 +30,7 @@
   </component>
   <component name="ProjectId" id="1RhNiJbvcNquw83jS1ee7SekzPJ" />
   <component name="PropertiesComponent">
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="last_opened_file_path" value="D:/OneDrive - kpu.ac.kr/이동규 활동/2학년/2D게임프로그래밍/2019-2DGP/2018180030_2DGP_DRILLS/Drill-12" />
     <property name="settings.editor.selected.configurable" value="preferences.sourceCode" />
   </component>

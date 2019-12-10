@@ -6,6 +6,8 @@ import GameWorldManager
 import BlockSet
 import Monster
 import MainState
+import Dropped_Item
+
 
 class Point(ctypes.Structure):
     _fields_ = [("x", ctypes.c_int),
@@ -29,7 +31,8 @@ Wall_Type = dict(zip(Wall_Type_Keys, Wall_Type_Values))
 Monster_Type_Keys = ['MONSTER_NULL',
                      'MONSTER_SLIME_GREEN', 'MONSTER_SLIME_BLUE',
                      'MONSTER_SKULL_WHITE', 'MONSTER_BAT_BASIC',
-                     'MONSTER_BANSHEE']
+                     'MONSTER_BANSHEE', 'MONSTER_SKELETON_KNIGHT']
+
 Monster_Type_Values = list(range(len(Monster_Type_Keys)))
 Monster_Type = dict(zip(Monster_Type_Keys, Monster_Type_Values))
 
@@ -51,7 +54,17 @@ class FirstStage:
         # Monster.Bat_Basic(700, 350 + 20)
         self.monster_list = [Monster.Slime_Green(600, 350 + 10), Monster.Slime_Green(600, 300 + 10),
                              Monster.Bat_Basic(700, 350 + 20), Monster.Bat_Basic(700, 400 + 20), Monster.Bat_Basic(700, 450 + 20),
-                             Monster.Bat_Basic(650, 450 + 20)]
+                             Monster.Bat_Basic(650, 450 + 20), Monster.Skeleton_Knight(900, 100 - 5),
+                             Monster.Skeleton_Knight(350, -700 - 5), Monster.Slime_Green(750, -100 + 10), Monster.Slime_Green(500, -200 + 10), Monster.Slime_Green(500, -250 + 10),
+                             Monster.Bat_Basic(250, -550 + 20), Monster.Bat_Basic(350, -550 + 20), Monster.Bat_Basic(250, -450 + 20), Monster.Bat_Basic(350, -450 + 20),
+                             Monster.Banshee(0, -400 + 20), Monster.Slime_Green(950, 650 + 10)]
+
+        self.chest_list = [BlockSet.Chest(BlockSet.Block_Type['BLOCK_RED_CHEST'], Dropped_Item.DroppedItem_Type['ITEM_TORCH_NORMAL'], 750, 100),
+                           BlockSet.Chest(BlockSet.Block_Type['BLOCK_RED_CHEST'], Dropped_Item.DroppedItem_Type['ITEM_TORCH_BASIC'], 950, 700),
+                           BlockSet.Chest(BlockSet.Block_Type['BLOCK_BLACK_CHEST'], Dropped_Item.DroppedItem_Type['ITEM_TORCH_BLUE'], 500, 500),
+                           BlockSet.Chest(BlockSet.Block_Type['BLOCK_BLACK_CHEST'], Dropped_Item.DroppedItem_Type['ITEM_HEAL'], 450, -450)]
+
+        self.item_list = []
 
         self.init_map_objects()
 
@@ -61,6 +74,11 @@ class FirstStage:
             GameWorldManager.add_object(wall_object, MainState.LAYER_MAP)
         for monster_object in self.monster_list:
             GameWorldManager.add_object(monster_object, MainState.LAYER_MONSTER)
+        for chest_object in self.chest_list:
+            GameWorldManager.add_object(chest_object, MainState.LAYER_ITEM)
+
+        self.next_floor = BlockSet.NextFloor(False, 0, -450)
+        GameWorldManager.add_object(self.next_floor, MainState.LAYER_EXIT)
 
         self.stage1_bgm = pico2d.load_wav('resource\\sound\\stage1_bgm.wav')
         self.stage1_bgm.set_volume(35)
@@ -68,6 +86,7 @@ class FirstStage:
         pass
 
     def init_map_objects(self):
+
         for block_object in self.block_list:
             GameWorldManager.remove_object(block_object, MainState.LAYER_MAP)
         for wall_object in self.wall_list:
@@ -102,8 +121,21 @@ class FirstStage:
         for monster_object in self.monster_list:
             if monster_object.curr_hp <= 0:
                 monster_object.death_sound.play()
+                if monster_object.type == Monster.Monster_Type['MONSTER_BANSHEE']:
+                    self.next_floor.door_open()
+                    pass
+
+                if monster_object.type == Monster.Monster_Type['MONSTER_BANSHEE']:
+                    MainState.player_cadence.holding_gold += 90
+                    MainState.player_cadence.holding_diamond += 3
+                    pass
+                elif monster_object.type == Monster.Monster_Type['MONSTER_SKELETON_KNIGHT']:
+                    MainState.player_cadence.holding_gold += 20
+                    MainState.player_cadence.holding_diamond += 1
+
                 self.monster_list.remove(monster_object)
                 GameWorldManager.remove_object(monster_object)
+
                 MainState.player_cadence.holding_gold += 10
 
         if MainState.player_cadence.curr_hp <= 0:

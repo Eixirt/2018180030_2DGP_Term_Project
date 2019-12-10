@@ -2,16 +2,19 @@ import pico2d
 import GameFrameWork
 import GameWorldManager
 import copy
+import random
 
 import Camera
 
 import Player
 import Game_UI
 
+import Dropped_Item
 import Monster
 import Map_First_Stage
 
 import DeadEndState
+import ClearState
 
 name = "MainState"
 
@@ -103,7 +106,7 @@ BlackBoard = {'player': {'x': None, 'y': None,
 # layer 4: Map-UnderWall Objects
 # layer 5: UI Objects
 # layer 6: Hit Image and Message
-LAYER_BACKGROUND, LAYER_MAP, LAYER_MONSTER, LAYER_PLAYER, LAYER_UNDER_WALL, LAYER_UI, LAYER_MESSAGE = range(7)
+LAYER_BACKGROUND, LAYER_MAP, LAYER_EXIT, LAYER_ITEM, LAYER_MONSTER, LAYER_PLAYER, LAYER_UNDER_WALL, LAYER_UI, LAYER_MESSAGE = range(9)
 
 # sound
 
@@ -241,10 +244,13 @@ def update():
     check_collide_player_and_monster()
     check_collide_player_attack_and_monster()
     check_collide_monster_and_wall()
+
     pass
 
 
 def check_collide_player_and_wall():
+    global player_cadence
+    running_collide_chest = False
     # and player_cadence.check_moving_collide is False
     if player_cadence.check_jumping is True and player_cadence.check_moving_collide is False:
 
@@ -255,6 +261,44 @@ def check_collide_player_and_wall():
                     player_cadence.pivot = copy.copy(player_cadence.start_point)
                     break
                 pass
+            if check_collide_interaction(player_cadence.start_point, curr_stage.next_floor.pivot, 'RIGHT') and curr_stage.next_floor.running_open:
+                GameFrameWork.push_state(ClearState)
+                pass
+            elif check_collide_interaction(player_cadence.start_point, curr_stage.next_floor.pivot, 'RIGHT'):
+                player_cadence.check_jumping = False
+                player_cadence.pivot = copy.copy(player_cadence.start_point)
+                pass
+
+            for chest in curr_stage.chest_list:
+                if check_collide_interaction(player_cadence.start_point, chest.pivot, 'RIGHT'):
+                    player_cadence.check_jumping = False
+                    player_cadence.pivot = copy.copy(player_cadence.start_point)
+                    chest.chest_open()
+                    curr_stage.chest_list.remove(chest)
+                    if chest.chest_item == Dropped_Item.DroppedItem_Type['ITEM_HEAL']:
+                        drop_item = Dropped_Item.Heal_Item(chest.chest_item, chest.pivot.x, chest.pivot.y)
+                        pass
+                    else:
+                        drop_item = Dropped_Item.Torch_Item(chest.chest_item, chest.pivot.x, chest.pivot.y)
+                    curr_stage.item_list.append(drop_item)
+                    GameWorldManager.add_object(drop_item, LAYER_ITEM)
+
+                    GameWorldManager.remove_object(chest)
+                    running_collide_chest = True
+                    break
+                pass
+
+            if running_collide_chest is False:
+                for item in curr_stage.item_list:
+                    if check_collide_interaction(player_cadence.start_point, item.pivot, 'RIGHT'):
+                        item.play_get_item_sound()
+                        item.get_item(player_cadence)
+                        player_cadence.holding_gold += 10
+                        curr_stage.item_list.remove(item)
+                        GameWorldManager.remove_object(item)
+                        pass
+                    pass
+
             player_cadence.check_moving_collide = True
             pass
 
@@ -265,6 +309,44 @@ def check_collide_player_and_wall():
                     player_cadence.pivot = copy.copy(player_cadence.start_point)
                     break
                 pass
+            if check_collide_interaction(player_cadence.start_point, curr_stage.next_floor.pivot, 'LEFT') and curr_stage.next_floor.running_open:
+                GameFrameWork.push_state(ClearState)
+                pass
+            elif check_collide_interaction(player_cadence.start_point, curr_stage.next_floor.pivot, 'LEFT'):
+                player_cadence.check_jumping = False
+                player_cadence.pivot = copy.copy(player_cadence.start_point)
+                pass
+
+            for chest in curr_stage.chest_list:
+                if check_collide_interaction(player_cadence.start_point, chest.pivot, 'LEFT'):
+                    player_cadence.check_jumping = False
+                    player_cadence.pivot = copy.copy(player_cadence.start_point)
+                    chest.chest_open()
+                    curr_stage.chest_list.remove(chest)
+                    if chest.chest_item == Dropped_Item.DroppedItem_Type['ITEM_HEAL']:
+                        drop_item = Dropped_Item.Heal_Item(chest.chest_item, chest.pivot.x, chest.pivot.y)
+                        pass
+                    else:
+                        drop_item = Dropped_Item.Torch_Item(chest.chest_item, chest.pivot.x, chest.pivot.y)
+                    curr_stage.item_list.append(drop_item)
+                    GameWorldManager.add_object(drop_item, LAYER_ITEM)
+
+                    GameWorldManager.remove_object(chest)
+                    running_collide_chest = True
+                    break
+                pass
+
+            if running_collide_chest is False:
+                for item in curr_stage.item_list:
+                    if check_collide_interaction(player_cadence.start_point, item.pivot, 'LEFT'):
+                        item.play_get_item_sound()
+                        item.get_item(player_cadence)
+                        player_cadence.holding_gold += 10
+                        curr_stage.item_list.remove(item)
+                        GameWorldManager.remove_object(item)
+                        pass
+                    pass
+
             player_cadence.check_moving_collide = True
             pass
 
@@ -275,6 +357,44 @@ def check_collide_player_and_wall():
                     player_cadence.pivot = copy.copy(player_cadence.start_point)
                     break
                 pass
+            if check_collide_interaction(player_cadence.start_point, curr_stage.next_floor.pivot, 'UP') and curr_stage.next_floor.running_open:
+                GameFrameWork.push_state(ClearState)
+
+            elif check_collide_interaction(player_cadence.start_point, curr_stage.next_floor.pivot, 'UP'):
+                player_cadence.check_jumping = False
+                player_cadence.pivot = copy.copy(player_cadence.start_point)
+                pass
+
+            for chest in curr_stage.chest_list:
+                if check_collide_interaction(player_cadence.start_point, chest.pivot, 'UP'):
+                    player_cadence.check_jumping = False
+                    player_cadence.pivot = copy.copy(player_cadence.start_point)
+                    chest.chest_open()
+                    curr_stage.chest_list.remove(chest)
+                    if chest.chest_item == Dropped_Item.DroppedItem_Type['ITEM_HEAL']:
+                        drop_item = Dropped_Item.Heal_Item(chest.chest_item, chest.pivot.x, chest.pivot.y)
+                        pass
+                    else:
+                        drop_item = Dropped_Item.Torch_Item(chest.chest_item, chest.pivot.x, chest.pivot.y)
+                    curr_stage.item_list.append(drop_item)
+                    GameWorldManager.add_object(drop_item, LAYER_ITEM)
+
+                    GameWorldManager.remove_object(chest)
+                    running_collide_chest = True
+                    break
+                pass
+
+            if running_collide_chest is False:
+                for item in curr_stage.item_list:
+                    if check_collide_interaction(player_cadence.start_point, item.pivot, 'UP'):
+                        item.play_get_item_sound()
+                        item.get_item(player_cadence)
+                        player_cadence.holding_gold += 10
+                        curr_stage.item_list.remove(item)
+                        GameWorldManager.remove_object(item)
+                        pass
+                    pass
+
             player_cadence.check_moving_collide = True
             pass
 
@@ -285,6 +405,44 @@ def check_collide_player_and_wall():
                     player_cadence.pivot = copy.copy(player_cadence.start_point)
                     break
                 pass
+            if check_collide_interaction(player_cadence.start_point, curr_stage.next_floor.pivot, 'DOWN') and curr_stage.next_floor.running_open:
+                GameFrameWork.push_state(ClearState)
+            elif check_collide_interaction(player_cadence.start_point, curr_stage.next_floor.pivot, 'DOWN'):
+                player_cadence.check_jumping = False
+                player_cadence.pivot = copy.copy(player_cadence.start_point)
+                pass
+
+            for chest in curr_stage.chest_list:
+                if check_collide_interaction(player_cadence.start_point, chest.pivot, 'DOWN'):
+                    player_cadence.check_jumping = False
+                    player_cadence.pivot = copy.copy(player_cadence.start_point)
+                    chest.chest_open()
+                    curr_stage.chest_list.remove(chest)
+
+                    if chest.chest_item == Dropped_Item.DroppedItem_Type['ITEM_HEAL']:
+                        drop_item = Dropped_Item.Heal_Item(chest.chest_item, chest.pivot.x, chest.pivot.y)
+                        pass
+                    else:
+                        drop_item = Dropped_Item.Torch_Item(chest.chest_item, chest.pivot.x, chest.pivot.y)
+                    curr_stage.item_list.append(drop_item)
+                    GameWorldManager.add_object(drop_item, LAYER_ITEM)
+
+                    GameWorldManager.remove_object(chest)
+                    running_collide_chest = True
+                    break
+                pass
+
+            if running_collide_chest is False:
+                for item in curr_stage.item_list:
+                    if check_collide_interaction(player_cadence.start_point, item.pivot, 'DOWN'):
+                        item.play_get_item_sound()
+                        item.get_item(player_cadence)
+                        player_cadence.holding_gold += 10
+                        curr_stage.item_list.remove(item)
+                        GameWorldManager.remove_object(item)
+                        pass
+                    pass
+
             player_cadence.check_moving_collide = True
             pass
 
@@ -299,7 +457,7 @@ def check_collide_player_and_monster():
             for mob in curr_stage.monster_list:
                 if mob.type == Monster.Monster_Type['MONSTER_SLIME_GREEN']:
                     mob_pivot = mob.start_pivot
-                elif mob.type == Monster.Monster_Type['MONSTER_BAT_BASIC']:
+                else:
                     mob_pivot = mob.pivot
 
                 if check_collide_interaction(player_cadence.start_point, mob_pivot, 'RIGHT'):
@@ -316,7 +474,7 @@ def check_collide_player_and_monster():
 
                 if mob.type == Monster.Monster_Type['MONSTER_SLIME_GREEN']:
                     mob_pivot = mob.start_pivot
-                elif mob.type == Monster.Monster_Type['MONSTER_BAT_BASIC']:
+                else:
                     mob_pivot = mob.pivot
 
                 if check_collide_interaction(player_cadence.start_point, mob_pivot, 'LEFT'):
@@ -333,7 +491,7 @@ def check_collide_player_and_monster():
 
                 if mob.type == Monster.Monster_Type['MONSTER_SLIME_GREEN']:
                     mob_pivot = mob.start_pivot
-                elif mob.type == Monster.Monster_Type['MONSTER_BAT_BASIC']:
+                else:
                     mob_pivot = mob.pivot
 
                 if check_collide_interaction(player_cadence.start_point, mob_pivot, 'UP'):
@@ -350,7 +508,7 @@ def check_collide_player_and_monster():
 
                 if mob.type == Monster.Monster_Type['MONSTER_SLIME_GREEN']:
                     mob_pivot = mob.start_pivot
-                elif mob.type == Monster.Monster_Type['MONSTER_BAT_BASIC']:
+                else:
                     mob_pivot = mob.pivot
 
                 if check_collide_interaction(player_cadence.start_point, mob_pivot, 'DOWN'):
@@ -371,13 +529,23 @@ def check_collide_player_attack_and_monster():
         for mob in curr_stage.monster_list:
             if mob.type == Monster.Monster_Type['MONSTER_SLIME_GREEN']:
                 mob_pivot = mob.start_pivot
-            elif mob.type == Monster.Monster_Type['MONSTER_BAT_BASIC']:
+            else:
                 mob_pivot = mob.pivot
 
             if check_collide_interaction(player_attack.pivot, mob_pivot, ''):
                 mob.curr_hp -= player_attack.damage
-                if mob.curr_hp > 0:
+                if mob.type == Monster.Monster_Type['MONSTER_BANSHEE']:
+                    if mob.curr_hp <= mob.max_hp / 2 and mob.running_rage is False:
+                        mob.rage()
+                        mob.running_rage = True
+                        mob.object_width = mob.object_rage_width
+                    pass
+
+                if mob.curr_hp > 0 and mob.type != Monster.Monster_Type['MONSTER_BANSHEE']:
                     mob.hit_sound.play()
+                elif mob.curr_hp > 0 and mob.type == Monster.Monster_Type['MONSTER_BANSHEE']:
+                    ran_hit_sound = random.randint(0, 2)
+                    mob.hit_sound[ran_hit_sound].play()
                 player_attack.check_possible_attack = False
                 break
 

@@ -7,7 +7,7 @@
 # layer 5: UI Objects
 # layer 6: Hit Image and Message
 
-objects = [[], [], [], [], [], [], []]
+objects = [[], [], [], [], [], [], [], [], []]
 
 
 def add_object(o, layer):
